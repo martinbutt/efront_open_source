@@ -1809,6 +1809,16 @@ class EfrontTest
                     minutes = "'.$remainingTime['minutes'].'";
                     seconds = "'.$remainingTime['seconds'].'";
                     duration = "'.$this -> options['duration'].'";
+                    endTime = new Date;
+                    
+  //console.log(endTime);                  
+					endTime.setHours(endTime.getHours()+parseInt(hours));
+					endTime.setMinutes(endTime.getMinutes()+parseInt(minutes));
+					endTime.setSeconds(endTime.getSeconds()+parseInt(seconds));
+	//				console.log(endTime);
+//console.log(endTime.getHours());console.log(hours);
+//console.log(endTime.getMinutes());console.log(minutes);
+//console.log(endTime.getSeconds());console.log(seconds);
                 ';
             if ($freeze) {
                 $str .= '

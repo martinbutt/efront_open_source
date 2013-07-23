@@ -60,7 +60,7 @@
                         </tr>
                         <tr class = "{cycle name = 'active_users' values = 'oddRowColor, evenRowColor'}">
                             <td class = "labelCell">{$smarty.const._TOTALSIZE}:</td>
-                            <td class = "elementCell">{$T_SPACE_USED.0}MB ({$T_SPACE_USED.1} {$smarty.const._FILES})</td>
+                            <td class = "elementCell">{if $T_SPACE_USED}{$T_SPACE_USED.0}MB ({$T_SPACE_USED.1} {$smarty.const._FILES}){else}<input type = "button" class = "flatButton" value = "calculate" onclick = "location=location.toString()+'&calculate_space=1'">{/if}</td>
                         </tr>
                     </table>
                     <br/>

@@ -614,12 +614,15 @@ if (isset($_GET['delete_lesson']) && eF_checkParameter($_GET['delete_lesson'], '
 	        			if (isset($_GET['filter'])) {
 	        				$users = eF_filterData($users, $_GET['filter']);
 	        			}
+	       
+	        			$smarty -> assign("T_USERS_SIZE", sizeof($users));
+	        			
 	        			if (isset($_GET['limit']) && eF_checkParameter($_GET['limit'], 'int')) {
 	        				isset($_GET['offset']) && eF_checkParameter($_GET['offset'], 'int') ? $offset = $_GET['offset'] : $offset = 0;
 	        				$users = array_slice($users, $offset, $limit, true);
 	        			}
+        			
 	        			
-	        			$smarty -> assign("T_USERS_SIZE", sizeof($users));
 	        			$smarty -> assign("T_ROLES", $roles);
 	        			$smarty -> assign("T_ALL_USERS", $users);
 	        			$smarty -> assign("T_LESSON_USERS", array_keys($lessonUsers));                                             //We assign separately the lesson's users, to know when to display the checkboxes as "checked"
@@ -735,30 +738,24 @@ if (isset($_GET['delete_lesson']) && eF_checkParameter($_GET['delete_lesson'], '
 	        	}
 	        }
 
-	        //Perform a query to get all the 'student' and 'student-like' users of every lesson
-	        $result = eF_getTableDataFlat("lessons l,users_to_lessons ul left outer join user_types ut on ul.user_type=ut.id", "l.id,count(*)", "ul.archive=0 and l.id=ul.lessons_ID and (ul.user_type='student' or (ul.user_type = ut.id and ut.basic_user_type = 'student'))", "", "l.id" );
-	        if (sizeof($result) > 0) {
-	        	$lessonUsers = array_combine($result['id'], $result['count(*)']);
-	        }
-	        foreach ($lessons as $key => $lesson) {
-	        	if (isset($lessonUsers[$key]) && !$lesson['course_only']) {
-	        		$lessons[$key]['students'] = $lessonUsers[$key];
-	        	} else {
-	        		$lessons[$key]['students'] = 0;
-	        	}
-				if (isset($_COOKIE['toggle_active'])) {
-					if (($_COOKIE['toggle_active'] == 1 && !$lesson['active']) || ($_COOKIE['toggle_active'] == -1 && $lesson['active'])) {
-						unset($lessons[$key]);
-					}
-				}
-	        }
-	        /*
-	         $tableName  = 'lessonsTable';
-	         $dataSource = $lessons;
-	         include "sorted_table.php";
-	         */
-
 	        if (isset($_GET['ajax']) && $_GET['ajax'] == 'lessonsTable') {
+	        	//Perform a query to get all the 'student' and 'student-like' users of every lesson
+	        	$result = eF_getTableDataFlat("lessons l,users_to_lessons ul left outer join user_types ut on ul.user_type=ut.id", "l.id,count(*)", "ul.archive=0 and l.id=ul.lessons_ID and (ul.user_type='student' or (ul.user_type = ut.id and ut.basic_user_type = 'student'))", "", "l.id" );
+	        	if (sizeof($result) > 0) {
+	        		$lessonUsers = array_combine($result['id'], $result['count(*)']);
+	        	}
+	        	foreach ($lessons as $key => $lesson) {
+	        		if (isset($lessonUsers[$key]) && !$lesson['course_only']) {
+	        			$lessons[$key]['students'] = $lessonUsers[$key];
+	        		} else {
+	        			$lessons[$key]['students'] = 0;
+	        		}
+	        		if (isset($_COOKIE['toggle_active'])) {
+	        			if (($_COOKIE['toggle_active'] == 1 && !$lesson['active']) || ($_COOKIE['toggle_active'] == -1 && $lesson['active'])) {
+	        				unset($lessons[$key]);
+	        			}
+	        		}
+	        	}	        	
 	        	isset($_GET['limit']) ? $limit = $_GET['limit'] : $limit = G_DEFAULT_TABLE_SIZE;
 
 	        	if (isset($_GET['sort'])) {

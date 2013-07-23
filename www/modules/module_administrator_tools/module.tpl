@@ -131,6 +131,10 @@
 		{eF_template_printForm form = $T_FILE_ENCODINGS_FORM}
 	{/capture}
 
+	{capture name = "t_fix_shared_folders"}
+		{eF_template_printForm form = $T_FIX_SHARED_FOLDERS_FORM}
+	{/capture}
+
 {elseif $smarty.get.do == 'enterprise'}
 	{capture name = 't_unenroll_courses_code'}
 	<table class = "formElements">
@@ -310,6 +314,7 @@
 	{elseif $smarty.get.do == 'system'}
 		{eF_template_printBlock tabber = "sql" title = $smarty.const._MODULE_ADMINISTRATOR_TOOLS_SQLINTERFACE data = $smarty.capture.t_sql_code image='32x32/generic.png'}
 		{eF_template_printBlock tabber = "files_encoding" title = $smarty.const._MODULE_ADMINISTRATOR_TOOLS_CHANGEFILESENCODING data = $smarty.capture.t_change_files_encoding_code image='32x32/folders.png'}
+		{eF_template_printBlock tabber = "shared_folders" title = $smarty.const._MODULE_ADMINISTRATOR_TOOLS_FIXSHAREDFOLDERS data = $smarty.capture.t_fix_shared_folders image='32x32/folders.png'}
 	{elseif $smarty.get.do == 'enterprise'}
 		{if ($smarty.const.G_VERSIONTYPE == 'enterprise')} {* #cpp#ifdef ENTERPRISE *}
 			{eF_template_printBlock tabber = "category_reports" title = $smarty.const._MODULE_ADMINISTRATOR_TOOLS_CATEGORYREPORTS data = $smarty.capture.t_category_reports_code image='32x32/categories.png'}

@@ -67,7 +67,7 @@ $loadScripts[] = 'includes/groups';
         $roles = EfrontLessonUser :: getStudentRoles(true);
 		array_unshift($roles, _DONTUSEDEFAULTGROUP);
 
-        $form -> addElement('text', 'name', _NAME, 'class = "inputText"');
+        $form -> addElement('text', 'name', _GROUPNAME, 'class = "inputText"');
         $form -> addElement('text', 'description', _DESCRIPTION, 'class = "inputText"');
         $form -> addElement('static', 'sidenote', '<img src = "images/16x16/wizard.png" class = "ajaxHandle" alt = "'._AUTOMATICALLYGENERATEGROUPKEY.'" title = "'._AUTOMATICALLYGENERATEGROUPKEY.'" onclick = "$(\'unique_key_id\').value = \''.md5(time()).'\';"/>');// timestamp guarantess uniqueness
         $form -> addElement('text', 'unique_key', _UNIQUEGROUPKEY, 'class = "inputText" id="unique_key_id"');

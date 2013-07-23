@@ -691,11 +691,22 @@ function checkQuickTestForm() {
 
 }
 
+function zeroPad(nr,base,chr){
+   var  len = (String(base||10).length - String(nr).length)+1;
+   return len > 0? new Array(len).join(chr||'0')+nr : nr;
+}
+
+
 function eF_js_printTimer() {
+	var diff = Math.abs((endTime-new Date().getTime())/1000);
+	hours = zeroPad(Math.floor(diff/3600));
+	minutes = zeroPad(Math.floor(diff/60));
+	seconds = zeroPad(Math.floor(diff%60));
     if (hours <= 0 && minutes <= 0 && seconds <= 0 && duration) {
         alert(timeup);
     	document.test_form.submit();
     } else {
+    	/*
         if (seconds >= 1) {seconds--;}
         else {
             if (seconds == 0 ) {seconds = 59;}
@@ -706,6 +717,7 @@ function eF_js_printTimer() {
                 else              {hours = 0;}
             }
         }
+        */
         min = minutes.toString();
         sec = seconds.toString()
         if (min.length == 1) {min = "0" + min;}
@@ -934,7 +946,7 @@ function startAutoCompleter(el, id, options) {
 	var autocompleter = new Autocompleter.Local(el.identify(), 'question_autocomplete_'+id, arrayOptions, { });
 	autocompleter.activate();
 }
-
+/*
 jQuery('div[id*=question_]').find('input,select,textarea,div.draggable').on('mouseup', function(event) {
 	var current_timestamp = Math.round(new Date().getTime() / 1000);
 	if (typeof (window.last_autosave) == 'undefined') {
@@ -942,12 +954,12 @@ jQuery('div[id*=question_]').find('input,select,textarea,div.draggable').on('mou
 	}
 	//console.log(current_timestamp);
 	//console.log(window.last_autosave);
-	if (current_timestamp > window.last_autosave+20) {
+	if (current_timestamp > window.last_autosave+10) {
 		window.last_autosave = current_timestamp;
 		//var url = jQuery(this).parents('form').attr('action');
 		jQuery.post(jQuery(this).parents('form').attr('action')+'&auto_save=1', jQuery(this).parents('form').serialize());
 		event.stopPropagation();
 	}
 });
-
+*/
 

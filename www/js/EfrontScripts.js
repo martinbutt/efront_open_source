@@ -544,6 +544,7 @@ function onPeriodicUpdater(el, response) {
 				//$('user_time_in_lesson').update(time_in_lesson.total_seconds);
 			}
 		}
+/*		
 		messages    = response.evalJSON(true).messages;
 		onlineUsers = response.evalJSON(true).online;//alert(onlineUsers);
 		if ($('header_total_messages')) {
@@ -568,6 +569,7 @@ function onPeriodicUpdater(el, response) {
 				$('header_connected_users').update('');
 			}
 		}	
+*/		
 		if (parent.sideframe) {
 			try {
 				var sideframe = parent.sideframe;

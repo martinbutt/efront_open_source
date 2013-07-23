@@ -674,8 +674,9 @@ $smarty -> assign("T_CURRENT_LESSON", isset($currentLesson) ? $currentLesson : f
 
 if (isset($currentLesson)) {
 	$directions = new EfrontDirectionsTree();
-	$paths = $directions -> toPathString();
-	$categoryPath = $paths[$currentLesson->lesson["directions_ID"]];
+	$categoryPath = $directions -> getPathToNode($currentLesson->lesson["directions_ID"]);
+	//$categoryPath = $paths[$currentLesson->lesson["directions_ID"]];
+	//pr($categoryPath);exit;
 	//$categoryPath = str_replace("&rarr", "&raquo", $categoryPath);
 	$smarty -> assign("T_CURRENT_CATEGORY_PATH", $categoryPath);
 	if ($currentLesson -> lesson['course_only'] == 1 && $_SESSION['s_courses_ID']) {
@@ -690,6 +691,11 @@ if (G_VERSIONTYPE != 'community') { #cpp#ifndef COMMUNITY
 		$smarty -> assign("T_FACEBOOK_USER", EfrontFacebook::userConnected());
 	}
 } #cpp#endif
+
+if ((!isset($currentUser -> coreAccess['personal_messages']) || $currentUser -> coreAccess['personal_messages'] != 'hidden') && EfrontUser::isOptionVisible('messages')) {
+	$messages = eF_getTableData("f_personal_messages pm, f_folders ff", "count(*)", "pm.users_LOGIN='".$_SESSION['s_login']."' and viewed='no' and f_folders_ID=ff.id and ff.name='Incoming'");
+	$smarty->assign("T_NUM_MESSAGES", $messages[0]['count(*)']);
+}
 
 //$smarty -> assign("T_SIMPLE_COMPLETE_MODE", EfrontUser::isOptionVisible('simple_complete'));
 

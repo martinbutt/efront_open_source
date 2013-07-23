@@ -60,8 +60,7 @@ abstract class EfrontEntity
 	        $this -> {$this -> entity} = $result[0];
         } else {
             $this -> {$this -> entity} = $param;
-        }
-
+        }		
     }
 
     /**

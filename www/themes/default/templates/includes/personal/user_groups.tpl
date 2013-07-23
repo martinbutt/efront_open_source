@@ -3,7 +3,7 @@
 <!--ajax:groupsTable-->
 	<table style = "width:100%" class = "sortedTable" size = "{$T_TABLE_SIZE}" sortBy = "0" id = "groupsTable" useAjax = "1" rowsPerPage = "{$smarty.const.G_DEFAULT_TABLE_SIZE}" url = "{$smarty.server.REQUEST_URI}&">
 		<tr class = "topTitle">
-			<td class = "topTitle" name = "name">{$smarty.const._NAME}</td>
+			<td class = "topTitle" name = "name">{$smarty.const._GROUPNAME}</td>
 			<td class = "topTitle" name = "description">{$smarty.const._DESCRIPTION}</td>
 			<td class = "topTitle centerAlign" name = "partof">{$smarty.const._CHECK}</td>
 		</tr>

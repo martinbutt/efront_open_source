@@ -35,7 +35,7 @@ try {
     $usedBrowsers = array();
 
     foreach ($themes as $value) {
-        $themeNames[] = $value['name'];
+        $themeNames[] = $value->themes['name'];
     }
 
     $filesystem = new FileSystemTree(G_THEMESPATH, true);
@@ -51,22 +51,22 @@ try {
         }
     }
     $themes = themes :: getAll("themes");
-
     foreach ($themes as $value) {
-        $themeNames[] = $value['name'];
+        $themeNames[] = $value->themes['name'];
         //$browserThemes[$value['id']] = $value['options']['browsers'];
 	    foreach ($allBrowsers as $browser => $foo) {
-	        if (isset($value['options']['browsers'][$browser])) {
-	            $usedBrowsers[$browser] = $value['id'];
+	        if (isset($value->options['browsers'][$browser])) {	        	
+	            $usedBrowsers[$browser] = $value->themes['id'];
 	            unset($allBrowsers[$browser]);
 	        }
 	    }
     }
+    
     foreach ($allBrowsers as $key => $foo) {
         $currentSetTheme -> options['browsers'][$key] = 1;
-        $themes[$currentSetTheme -> themes['id']]['options']['browsers'][$key] = 1;
+        $themes[$currentSetTheme -> themes['id']]->options['browsers'][$key] = 1;
     }
-
+    
     $legalValues = array_merge(array_keys($themes), $themeNames);
 
     if (!isset($_GET['theme'])) {
@@ -203,6 +203,7 @@ try {
             $layoutTheme -> layout['custom_blocks'] = $customBlocks;
             $layoutTheme -> persist();
 
+            apc_delete(G_DBNAME.':themes');
             eF_redirect(basename($_SERVER['PHP_SELF'])."?ctg=themes&theme=".$layoutTheme -> {$layoutTheme -> entity}['id'].(isset($_GET['theme_layout']) ? '&theme_layout='.$_GET['theme_layout'] : ''));
         }
 
@@ -234,6 +235,7 @@ try {
                     $layoutTheme -> persist();
                 }
 
+                apc_delete(G_DBNAME.':themes');
                 eF_redirect(basename($_SERVER['PHP_SELF'])."?ctg=themes&theme=".$layoutTheme -> {$layoutTheme -> entity}['id'].(isset($_GET['theme_layout']) ? '&theme_layout='.$_GET['theme_layout'] : '')."&message=".rawurlencode(_SETTINGSIMPORTEDSUCCESFULLY)."&message_type=success");
                 //$message      = _SETTINGSIMPORTEDSUCCESFULLY;
                 //$message_type = 'success';
@@ -340,7 +342,7 @@ try {
         	handleAjaxExceptions($e);
         }
     }
-
+    
     //Themes list and add/edit/delete operations
     $smarty -> assign("T_THEMES", $themes);
     $smarty -> assign("T_CURRENT_THEME", $currentSetTheme);
@@ -355,7 +357,7 @@ try {
         	unset($_SESSION['s_theme']);
             $theme = new themes($_GET['set_browser']);
             foreach ($themes as $key => $value) {
-                $value = new themes($value['id']);
+                //$value = new themes($value['id']);
                 unset($value -> options['browsers'][$_GET['browser']]);
                 $value -> persist();
             }
@@ -385,7 +387,7 @@ try {
             }
             EfrontConfiguration::setValue('theme', $_GET['set_theme']);
             foreach ($themes as $key => $value) {
-                $value = new themes($value['id']);
+                //$value = new themes($value['id']);
                 unset($value -> options['browsers']);
                 $value -> persist();
             }

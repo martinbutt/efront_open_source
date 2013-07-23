@@ -64,4 +64,5 @@ define("_MODULE_ADMINISTRATOR_TOOLS_THISWILLPROPAGATECOMPLETIONSTATUSFROMACOURSE
 define("_MODULE_ADMINISTRATOR_TOOLS_PERFORMEDXUPDATES", "Performed %x updates");
 define("_MODULE_ADMINISTRATOR_TOOLS_UPDATECOMPLETEDLESSONS", "Update completed lessons");
 define("_MODULE_ADMINISTRATOR_TOOLS_SETCOMPLETEDLESSONSTOTHESAMEDATE", "Selecting this will force course lessons that are already completed to pick the course's completion date and score");
+define("_MODULE_ADMINISTRATOR_TOOLS_FIXSHAREDFOLDERS", "Fix shared folders inconsistencies");
 ?>

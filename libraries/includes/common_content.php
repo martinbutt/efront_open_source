@@ -633,10 +633,12 @@ if (isset($_GET['add']) || (isset($_GET['edit']) && in_array($_GET['edit'], $leg
         if ($_student_ && $_change_ && $currentLesson -> options['tracking']) {
             //$currentUser -> setSeenUnit($currentUnit, $currentLesson, 1);
             //$currentContent -> markSeenNodes($currentUser);
-            $userProgress = EfrontStats :: getUsersLessonStatus($currentLesson, $currentUser -> user['login']);
-            $userProgress = $userProgress[$currentLesson -> lesson['id']][$currentUser -> user['login']];
+            
+            //$userProgress = EfrontStats :: getUsersLessonStatus($currentLesson, $currentUser -> user['login']);
+            //$userProgress = $userProgress[$currentLesson -> lesson['id']][$currentUser -> user['login']];
             $seenContent  = EfrontStats :: getStudentsSeenContent($currentLesson -> lesson['id'], $currentUser -> user['login']);
             $seenContent  = $seenContent[$currentLesson -> lesson['id']][$currentUser -> user['login']];
+            $userProgress = EfrontStats::lightGetUserStatusInLesson($_SESSION['s_login'], $currentLesson, $seenContent, $visitableIterator);			         
 
             $smarty -> assign("T_SEEN_UNIT", in_array($currentUnit['id'], array_keys($seenContent)));    //Notify smarty whether the student has seen the current unit
             if ($currentLesson -> options['rules']) {
@@ -832,7 +834,7 @@ if (isset($_GET['add']) || (isset($_GET['edit']) && in_array($_GET['edit'], $leg
 
 
         if ($_student_ && $_change_ && $currentLesson -> options['tracking']) {
-        	//if ( $userProgress['lesson_passed'] && $userProgress['completed']) {	
+        	//if ( $userProgress['lesson_passed'] && $userProgress['completed']) {        	 
         		$nextLesson = $currentUser -> getNextLesson($currentLesson, $_SESSION['s_courses_ID'], true);
         		$smarty -> assign("T_NEXTLESSON", $nextLesson);
 				if ($currentLesson -> lesson['course_only'] && isset($_SESSION['s_courses_ID'])) {

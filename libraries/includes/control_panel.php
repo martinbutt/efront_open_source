@@ -298,15 +298,17 @@ try {
             if (!$currentLesson -> options['tracking'] || $currentUser -> coreAccess['content'] == 'hidden') {
                 $currentLesson -> options['lesson_info'] ? $controlPanelOptions[] = array('text' => _LESSONINFORMATION, 'image' => '32x32/information.png', 'href' => basename($_SERVER['PHP_SELF']).'?ctg=lesson_information', 'onClick' => "eF_js_showDivPopup(event, '"._LESSONINFORMATION."', 2)", 'target' => 'POPUP_FRAME') : null;
             } else {
-                $userProgress = EfrontStats :: getUsersLessonStatus($currentLesson, $currentUser -> user['login']);
-                $userProgress = $userProgress[$currentLesson -> lesson['id']][$currentUser -> user['login']];
                 $seenContent  = EfrontStats::getStudentsSeenContent($currentLesson, $currentUser);
                 $seenContent  = $seenContent[$currentLesson -> lesson['id']][$currentUser -> user['login']];
+                $userProgress = EfrontStats::lightGetUserStatusInLesson($_SESSION['s_login'], $currentLesson, $seenContent, $iterator);
                 $result       = eF_getTableData("users_to_lessons", "current_unit", "users_LOGIN = '".$currentUser -> user['login']."' and lessons_ID = ".$currentLesson -> lesson['id']);
                 sizeof($result) > 0 ? $userProgress['current_unit']  = $result[0]['current_unit'] : $userProgress['current_unit'] = false;
 
                 if ($userProgress['lesson_passed'] && !$userProgress['completed']) {
                     if (!$userProgress['completed'] && $currentLesson -> options['auto_complete']) {
+                    	$userProgress = EfrontStats :: getUsersLessonStatus($currentLesson, $currentUser -> user['login']);
+                    	$userProgress = $userProgress[$currentLesson -> lesson['id']][$currentUser -> user['login']];
+                    	 
                         $userProgress['tests_avg_score'] ? $avgScore = $userProgress['tests_avg_score'] : $avgScore = 100;
                         $timestamp = _AUTOCOMPLETEDAT.': '.date("Y/m/d, H:i:s");
                         $currentUser -> completeLesson($currentLesson, $avgScore, $timestamp);

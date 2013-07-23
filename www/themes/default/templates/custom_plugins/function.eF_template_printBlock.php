@@ -211,7 +211,8 @@ function smarty_function_eF_template_printBlock($params, &$smarty) {
     $str = '
     <div class = "block" style = "'.$params['style'].';" id = "'.urlencode($params['title']).'" >
         <div class = "blockContents" >';
-    if ($_GET['popup'] && !$params['options'][0]['image']) {
+   
+    if ($_GET['popup'] && !$params['image']) {
     	$str .= $params['content'];
     } else {
     	$str .= '

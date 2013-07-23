@@ -461,10 +461,19 @@ class calendar extends EfrontEntity
 		if (!($user instanceOf EfrontUser)) {
 			$user = EfrontUserFactory::factory($user);
 		}
-		if ($user -> user['user_type'] == 'administrator') {
-			$events = self :: getCalendarEventsForAdministrator($user);
+
+		$parameters = "calendar:{$user->user['login']}";
+		
+		if (($events = Cache::getCache($parameters)) !== false) {
+			$events = unserialize($events);
 		} else {
-			$events = self :: getCalendarEventsForNonAdmnistrator($user);
+
+			if ($user -> user['user_type'] == 'administrator') {
+				$events = self :: getCalendarEventsForAdministrator($user);
+			} else {
+				$events = self :: getCalendarEventsForNonAdministrator($user);
+			}
+			Cache::setCache($parameters, serialize($events), 86400);
 		}
 
 		return $events;
@@ -512,7 +521,7 @@ class calendar extends EfrontEntity
 	 * @access public
 	 * @static
 	 */
-	public static function getCalendarEventsForNonAdmnistrator($user) {
+	public static function getCalendarEventsForNonAdministrator($user) {
 		$user   = EfrontUser::convertArgumentToUserLogin($user);
 		$personalEvents = $globalEvents = $lessonEvents = $courseEvents = $groupEvents = $branchEvents = $subbranchEvents = array();
 		$result = eF_getTableData("calendar c", "c.*", "type = 'global' and foreign_ID=0");

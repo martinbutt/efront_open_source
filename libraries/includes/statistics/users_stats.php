@@ -52,7 +52,7 @@ if (isset($_GET['sel_user'])) {
 		$smarty -> assign("T_USER_DONE_TESTS", $doneTests[$infoUser -> user['login']]);
 		$smarty -> assign("T_USER_STATUS", $status[$_GET['lesson']][$infoUser -> user['login']]);
 	} elseif ($_GET['specific_course_info'] && $_GET['course']) {
-		$lessons = $infoUser -> getUserStatusInCourseLessons(new EfrontCourse($_GET['course']));
+		$lessons = $infoUser -> getUserStatusInCourseLessons(new EfrontCourse($_GET['course']), true);
 		$smarty -> assign ("T_USER_STATUS_IN_COURSE_LESSONS", $lessons);
 	} else {
 
@@ -82,7 +82,7 @@ if (isset($_GET['sel_user'])) {
 				$tableName   = $_GET['ajax'];
 				$smarty -> assign("T_DATASOURCE_COLUMNS", array('name', 'location', 'user_type', 'num_lessons', 'status', 'completed', 'score', 'operations', 'sort_by_column' => 4));
 				$smarty -> assign("T_DATASOURCE_OPERATIONS", array('progress'));
-				$lessons 	 = $infoUser -> getUserStatusInCourseLessons(new EfrontCourse($_GET['courseLessonsTable_source']));
+				$lessons 	 = $infoUser -> getUserStatusInCourseLessons(new EfrontCourse($_GET['courseLessonsTable_source']), true);
 				$lessons 	 = EfrontLesson :: convertLessonObjectsToArrays($lessons);
 				$dataSource  = $lessons;
 				if (!$_GET['sort']) {
@@ -645,7 +645,7 @@ if (isset($_GET['excel']) && $_GET['excel'] == 'user') {
 				$workSheet -> write($row, 1, _COMPLETED, $titleCenterFormat);
 				$workSheet -> write($row, 2, _SCORE, $titleCenterFormat);
 
-				$lessons = $infoUser -> getUserStatusInCourseLessons($instance);
+				$lessons = $infoUser -> getUserStatusInCourseLessons($instance, true);
 				foreach ($lessons as $lesson) {
 					$row++;
 					$workSheet -> write($row, 0, $lesson -> lesson['name'], $fieldLeftFormat);
@@ -825,7 +825,7 @@ if (isset($_GET['excel']) && $_GET['excel'] == 'user') {
 									_SCORE			  => formatScore($value['score']).'%',
 									'active'		  => $value['active']);
 
-			$courseLessons = $infoUser -> getUserStatusInCourseLessons(new EfrontCourse($value));
+			$courseLessons = $infoUser -> getUserStatusInCourseLessons(new EfrontCourse($value), true);
 
 			if (!empty($courseLessons)) {
 				$subsectionFormatting = array(_NAME			    => array('width' => '68%', 'fill' => true),

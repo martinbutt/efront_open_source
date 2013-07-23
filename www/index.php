@@ -58,7 +58,7 @@ if (is_dir("install") && isset($_GET['delete_install'])) {
 
 if (G_VERSIONTYPE != 'community') { #cpp#ifndef COMMUNITY
 	try {	
-		if (isset($_GET['logout']) && EfrontFacebook::userConnected()) {
+		if (isset($_GET['logout']) && $GLOBALS['configuration']['facebook_api_key'] && $GLOBALS['configuration']['facebook_secret'] && EfrontFacebook::userConnected()) {
 //probably never goes here with new way 			
 				$path = "../libraries/";
 				//require_once $path . "external/facebook-platform/php/facebook.php";
@@ -199,23 +199,25 @@ if (!$smarty -> is_cached('index.tpl', $cacheId) || !$GLOBALS['configuration']['
 	$smarty -> assign("T_CUSTOM_BLOCKS", $customBlocks);
 	$smarty -> assign("T_BLOCKS", $blocks);
 	$smarty -> assign("T_POSITIONS", $GLOBALS['currentTheme'] -> layout['positions']);
-	if (isset($_SESSION['s_current_branch'])) {
-		$branch = new EfrontBranch($_SESSION['s_current_branch']);
-		$constraints = array('active' => true, 'archive' => false, 'instance' => false, 'sort' => 'name');
-		$courses = $branch->getBranchCoursesIncludingParentBranches($constraints);
-	
-		$lessons = array();
-	}	
-    $directionsTree = new EfrontDirectionsTree();
-	$options		= array('lessons_link' => basename($_SERVER['PHP_SELF']).'?ctg=lesson_info&lessons_ID=',
-							'courses_link' => basename($_SERVER['PHP_SELF']).'?ctg=lesson_info&courses_ID=',
-							'search'	   => true,
-							'catalog'	   => true,
-							'url'		   => $_SERVER['PHP_SELF'],
-							'collapse'	   => $GLOBALS['configuration']['collapse_catalog'],
-							'buy_link'	   => true,
-							'course_lessons' => false);
-	include("directions_tree.php");
+	if ($GLOBALS['configuration']['lessons_directory'] == 1 && in_array('lessons', array_merge($positions['leftList'], $positions['rightList'], $positions['centerList']))) {
+		if (isset($_SESSION['s_current_branch'])) {
+			$branch = new EfrontBranch($_SESSION['s_current_branch']);
+			$constraints = array('active' => true, 'archive' => false, 'instance' => false, 'sort' => 'name');
+			$courses = $branch->getBranchCoursesIncludingParentBranches($constraints);
+
+			$lessons = array();
+		}
+		$directionsTree = new EfrontDirectionsTree();
+		$options		= array('lessons_link' => basename($_SERVER['PHP_SELF']).'?ctg=lesson_info&lessons_ID=',
+				'courses_link' => basename($_SERVER['PHP_SELF']).'?ctg=lesson_info&courses_ID=',
+				'search'	   => true,
+				'catalog'	   => true,
+				'url'		   => $_SERVER['PHP_SELF'],
+				'collapse'	   => $GLOBALS['configuration']['collapse_catalog'],
+				'buy_link'	   => true,
+				'course_lessons' => false);
+		include("directions_tree.php");
+	}
 }
 
 
@@ -317,6 +319,7 @@ $form->disable_csrf = true;
 
 if ($form -> isSubmitted() && $form -> validate()) {
 	try {
+		
 		$user = EfrontUserFactory :: factory(trim($form -> exportValue('login')));
 
 		if ($GLOBALS['configuration']['lock_down'] && $user -> user['user_type'] != 'administrator') {
@@ -1556,16 +1559,11 @@ if (isset($search_message)) {
 	$smarty -> assign("T_SEARCH_MESSAGE", $search_message);
 }
 if (!$smarty -> is_cached('index.tpl', $cacheId) || !$GLOBALS['configuration']['smarty_caching']) {
-	$result = eF_getTableData("modules","*","active=1");
-
-	foreach ($result as $module) {
-		
-   		if (is_file(G_MODULESPATH.$module['position']."/".$module['className'].".class.php")) {   			
-   			require_once G_MODULESPATH.$module['position']."/".$module['className'].".class.php";
-   			call_user_func(array($module['name'], 'onIndexPageLoad'));
-   		}
+	foreach (eF_loadAllModules(true, true) as $module) {
+		$module->onIndexPageLoad();
 	}
 
+	$positions = $GLOBALS['currentTheme']->layout['positions'];
 	//Main scripts, such as prototype
 	$mainScripts = getMainScripts();
 	$smarty -> assign("T_HEADER_MAIN_SCRIPTS", implode(",", $mainScripts));
@@ -1573,11 +1571,18 @@ if (!$smarty -> is_cached('index.tpl', $cacheId) || !$GLOBALS['configuration']['
 	$loadScripts = array_diff($loadScripts, $mainScripts);        //Clear out duplicates
 	$smarty -> assign("T_HEADER_LOAD_SCRIPTS", implode(",", array_unique($loadScripts)));                    //array_unique, so it doesn't send duplicate entries
 
-	$smarty -> assign("T_NEWS", news :: getNews(0, true));
+	if (in_array('news', array_merge($positions['leftList'], $positions['rightList'], $positions['centerList']))) {
+		$smarty -> assign("T_NEWS", news :: getNews(0, true));		
+	}	
+	
 	if (G_VERSIONTYPE == 'enterprise') { #cpp#ifdef ENTERPRISE
 		require_once "../libraries/module_hcd_tools.php";
 	} #cpp#endif
-	$smarty -> assign("T_ONLINE_USERS_LIST", EfrontUser :: getUsersOnline($GLOBALS['configuration']['autologout_time'] * 60));
+	if (EfrontUser::isOptionVisible('online_users') && in_array('online', array_merge($positions['leftList'], $positions['rightList'], $positions['centerList']))) {
+		$smarty -> assign("T_ONLINE_USERS_LIST", EfrontUser :: getUsersOnline($GLOBALS['configuration']['autologout_time'] * 60));
+	}
+	
+	
 	$smarty -> assign("T_CURRENT_USER", $currentUser);
 	$smarty -> load_filter('output', 'eF_template_setEditorOffset');
 	$smarty -> display('index.tpl');

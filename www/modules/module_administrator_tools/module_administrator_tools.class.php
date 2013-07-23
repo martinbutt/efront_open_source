@@ -145,6 +145,7 @@ class module_administrator_tools extends EfrontModule {
 
 			} else if ($_GET['do'] == 'system') {
 				$this->doChangeFileEncoding();
+				$this->doFixSharedFolders();
 				$this->doSqlInterface();
 
 			} else if ($_GET['do'] == 'enterprise') {
@@ -434,7 +435,7 @@ class module_administrator_tools extends EfrontModule {
 			handleAjaxExceptions($e);
 		}
 		
-		$this -> setMessageVar($message, $message_type);
+		
 	}
 
 	private function doSqlInterface() {
@@ -471,10 +472,10 @@ class module_administrator_tools extends EfrontModule {
 				$message      = $e -> getMessage().' ('.$e -> getCode().') &nbsp;<a href = "javascript:void(0)" onclick = "eF_js_showDivPopup(event, \''._ERRORDETAILS.'\', 2, \'error_details\')">'._MOREINFO.'</a>';
 				$message_type = 'failure';
 			}
+			$this -> setMessageVar($message, $message_type);
 		}
 		$smarty -> assign("T_SQL_FORM", $sqlForm -> toArray());
 		
-		$this -> setMessageVar($message, $message_type);
 	}
 
 	private function doCourseLessonUsers() {
@@ -536,9 +537,10 @@ class module_administrator_tools extends EfrontModule {
 			} catch (Exception $e) {
 				handleAjaxExceptions($e);
 			}
+			
 		}
 		
-		$this -> setMessageVar($message, $message_type);
+		
 	}
 	
 	private function doSynchronizeCourseLessons() {
@@ -576,12 +578,72 @@ class module_administrator_tools extends EfrontModule {
 				$message      = $e -> getMessage().' ('.$e -> getCode().') &nbsp;<a href = "javascript:void(0)" onclick = "eF_js_showDivPopup(event, \''._ERRORDETAILS.'\', 2, \'error_details\')">'._MOREINFO.'</a>';
 				$message_type = 'failure';
 			}
+			$this -> setMessageVar($message, $message_type);
 		}
 		$smarty -> assign("T_SYNC_COURSE_LESSONS_FORM", $form -> toArray());
 
-		$this -> setMessageVar($message, $message_type);
+		
 	}
 
+	
+	private function doFixSharedFolders() {
+		$smarty = $this -> getSmartyVar();
+		$currentUser = $this -> getCurrentUser();
+	
+		$sharedFoldersForm = new HTML_QuickForm("fix_folders_form", "post", basename($_SERVER['PHP_SELF'])."?ctg=module&op=module_administrator_tools&tab=shared_folders&do=system", "", null, true);
+		$sharedFoldersForm -> addElement('static', '', 'Having trouble accessing files from lessons that share folders with other lessons? Click this button to re-synchronize shared folders. You may have to run more than once (until there are 0 updates)');
+		$sharedFoldersForm -> addElement('checkbox', 'content', 'Update content');
+		$sharedFoldersForm -> addElement('submit', 'submit', _SUBMIT, 'class = "flatButton"');
+	
+		if ($sharedFoldersForm -> isSubmitted() && $sharedFoldersForm -> validate()) {
+			try {
+				
+				$fixedCounter = 0;
+				$result = eF_getTableData("lessons", "id,name,share_folder");
+				foreach ($result as $value) {
+					$shared[$value['share_folder']][$value['id']] = $value['id'];
+					$folders[$value['id']] = $value['share_folder'];
+				}
+				
+				foreach ($shared as $id => $value) {
+					if ($id && !$shared[0][$id]) {
+						$correct_folder = $folders[$id];
+						foreach ($shared[$id] as $change) {
+							eF_updateTableData("lessons", array("share_folder" => $correct_folder), "id={$change}");
+							if ($sharedFoldersForm->exportValue('content')) {
+								$result = eF_getTableData("content", "id,data", "data like '%content/lessons/{$id}/%'");
+								if (!empty($result)) {								
+									foreach ($result as $value) {								
+										$data = str_replace("content/lessons/{$id}/", "content/lessons/{$correct_folder}/", $value['data']);
+										eF_updateTableData("content", array('data' => $data), "id={$value['id']}");
+									}
+								}
+								$result = eF_getTableData("questions", "id,text", "text like '%content/lessons/{$id}/%'");								
+								if (!empty($result)) {
+									foreach ($result as $value) {								
+										$data = str_replace("content/lessons/{$id}/", "content/lessons/{$correct_folder}/", $value['text']);
+										eF_updateTableData("questions", array('text' => $data), "id={$value['id']}");
+									}
+								}
+							}
+							$fixedCounter++;
+						}
+					}
+				}
+				$message = "Updated $fixedCounter lessons";
+				$message_type='success';
+				
+				$this -> setMessageVar($message, $message_type);
+			} catch (Exception $e) {
+				$smarty -> assign("T_EXCEPTION_TRACE", $e -> getTraceAsString());
+				$message      = $e -> getMessage().' ('.$e -> getCode().') &nbsp;<a href = "javascript:void(0)" onclick = "eF_js_showDivPopup(event, \''._ERRORDETAILS.'\', 2, \'error_details\')">'._MOREINFO.'</a>';
+				$message_type = 'failure';
+			}
+		}
+
+		$smarty -> assign("T_FIX_SHARED_FOLDERS_FORM", $sharedFoldersForm -> toArray());
+	}
+	
 	private function doChangeFileEncoding() {
 		$smarty = $this -> getSmartyVar();
 		$currentUser = $this -> getCurrentUser();
@@ -642,10 +704,10 @@ class module_administrator_tools extends EfrontModule {
 				$message      = $e -> getMessage().' ('.$e -> getCode().') &nbsp;<a href = "javascript:void(0)" onclick = "eF_js_showDivPopup(event, \''._ERRORDETAILS.'\', 2, \'error_details\')">'._MOREINFO.'</a>';
 				$message_type = 'failure';
 			}
+			$this -> setMessageVar($message, $message_type);
 		}
 		$smarty -> assign("T_FILE_ENCODINGS_FORM", $fileEncodingsForm -> toArray());
 		
-		$this -> setMessageVar($message, $message_type);
 	}
 
 	private function doChangeUserType() {
@@ -788,7 +850,6 @@ class module_administrator_tools extends EfrontModule {
 		}
 		$smarty -> assign("T_ENTITIES_LIST", $entities);
 		
-		$this -> setMessageVar($message, $message_type);
 	}
 
 	private function doCategoryReports() {
@@ -945,7 +1006,6 @@ class module_administrator_tools extends EfrontModule {
 		}
 		$smarty -> assign("T_CATEGORY_FORM", $form->toArray());
 		
-		$this -> setMessageVar($message, $message_type);
 	}
 
 	private function doJobCourses() {
@@ -976,10 +1036,11 @@ class module_administrator_tools extends EfrontModule {
 			$job -> associateCoursesToJob($courses, true);
 			$message = str_replace(array("%x", "%y"), array(sizeof($sameJobs), sizeof($courses)), _MODULE_ADMINISTRATOR_TOOLS_SUCCESSFULLYASSIGNEDCOURSESTOJOBS);
 			$message_type = 'success';
+			$this -> setMessageVar($message, $message_type);
 		}
 		$smarty -> assign("T_JOB_COURSES_FORM", $form->toArray());
 		
-		$this -> setMessageVar($message, $message_type);
+		
 	}
 	
 	private function doMultiplePlacements() {

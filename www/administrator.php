@@ -415,6 +415,11 @@ if (!isset($_GET['edit_block'])) {   // when updating a unit we must preserve th
 	$smarty -> load_filter('output', 'eF_template_setEditorOffset');
 }
 
+if ((!isset($currentUser -> coreAccess['personal_messages']) || $currentUser -> coreAccess['personal_messages'] != 'hidden') && EfrontUser::isOptionVisible('messages')) {
+	$messages = eF_getTableData("f_personal_messages pm, f_folders ff", "count(*)", "pm.users_LOGIN='".$_SESSION['s_login']."' and viewed='no' and f_folders_ID=ff.id and ff.name='Incoming'");
+	$smarty->assign("T_NUM_MESSAGES", $messages[0]['count(*)']);
+}
+
 $benchmark -> set('script');
 $smarty -> display('administrator.tpl');
 $benchmark -> set('smarty');

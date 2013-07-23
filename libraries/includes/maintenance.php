@@ -281,6 +281,37 @@ if (!isset($currentUser -> coreAccess['maintenance']) || $currentUser -> coreAcc
         }
         exit;
     }
+    if (isset($_GET['archive_tables']) && $_GET['ajax'] == 1) {
+    	try {
+    		$time_limit = time()-86400*30;
+    		$limit = 100000;
+
+    		$result = eF_getTableData("logs", "count(*) as count");
+    		if ($result[0]['count'] > $limit) {
+    			$new_table = eF_local_archive_table('logs', $time_limit);
+    			eF_executeNew("rename table logs to {$new_table}");
+    			eF_executeNew("insert into logs select * from `{$new_table}` where timestamp > {$time_limit}");
+    			//eF_deleteTableData("logs", "timestamp < {$time_limit}");
+    		}
+    		$result = eF_getTableData("user_times", "count(*) as count");
+    		if ($result[0]['count'] > $limit) {
+    			$new_table = eF_local_archive_table('user_times', $time_limit);
+    			eF_executeNew("rename table user_times to {$new_table}");
+    			eF_executeNew("insert into user_times select * from `{$new_table}` where session_timestamp > {$time_limit}");
+    			//eF_deleteTableData("user_times", "session_timestamp < {$time_limit}");
+    		}
+    		$result = eF_getTableData("events", "count(*) as count");
+    		if ($result[0]['count'] > $limit) {
+    			$new_table = eF_local_archive_table('events', $time_limit);
+    			eF_executeNew("rename table events to {$new_table}");
+    			eF_executeNew("insert into events select * from `{$new_table}` where timestamp > {$time_limit}");
+    			//eF_deleteTableData("events", "timestamp < {$time_limit}");
+    		}
+    	} catch (Exception $e) {
+    		handleAjaxExceptions($e);
+    	}
+    	exit;
+    }
     if (isset($_GET['delete_views']) && $_GET['ajax'] == 1) {
         try {
            eF_executeNew("drop view if exists users_view");
@@ -374,13 +405,13 @@ if (!isset($currentUser -> coreAccess['maintenance']) || $currentUser -> coreAcc
     }
 
 	if (isset($_GET['autologin'])) {
-		$users     = eF_getTableData("users", "login,name,surname,active,autologin,timestamp");
-		foreach ($users as $key => $value) {
-			$usersArray[$value['login']] = $value;
-		}
-//pr($usersArray);
 		if (isset($_GET['ajax']) && $_GET['ajax'] == 'usersTable') {
-                isset($_GET['limit']) && eF_checkParameter($_GET['limit'], 'uint') ? $limit = $_GET['limit'] : $limit = G_DEFAULT_TABLE_SIZE;
+			$users     = eF_getTableData("users", "login,name,surname,active,autologin,timestamp", "active=1 and archive=0");
+			foreach ($users as $key => $value) {
+				$usersArray[$value['login']] = $value;
+			}
+
+			isset($_GET['limit']) && eF_checkParameter($_GET['limit'], 'uint') ? $limit = $_GET['limit'] : $limit = G_DEFAULT_TABLE_SIZE;
 
                 if (isset($_GET['sort']) && eF_checkParameter($_GET['sort'], 'text')) {
                     $sort = $_GET['sort'];
@@ -404,7 +435,12 @@ if (!isset($currentUser -> coreAccess['maintenance']) || $currentUser -> coreAcc
         }
 		if (isset($_GET['postAjaxRequest'])) {
             try {
-                if (isset($_GET['login']) && eF_checkParameter($_GET['login'], 'login')) {
+            	$users     = eF_getTableData("users", "login,name,surname,active,autologin,timestamp", "active=1 and archive=0");
+            	foreach ($users as $key => $value) {
+            		$usersArray[$value['login']] = $value;
+            	}
+
+            	if (isset($_GET['login']) && eF_checkParameter($_GET['login'], 'login')) {
 					$user = EfrontUserFactory :: factory($_GET['login']);
 					if ($user -> user['autologin'] == "" ) {
 						$convert = $_GET['login']."_".$usersArray[$_GET['login']]['timestamp'];
@@ -443,4 +479,23 @@ if (!isset($currentUser -> coreAccess['maintenance']) || $currentUser -> coreAcc
 
 }
 
+function eF_local_archive_table($table_name, $time_limit) {
+	$result = eF_executeNew("show tables like '{$table_name}_%'");
+	$indexes = array();
+	foreach ($result->getAll() as $value) {
+		$index = str_replace("{$table_name}_", '', current(array_values($value)));
+		$indexes[$index] = $index;
+	}
+	
+	$count = 1;
+	while (isset($indexes[$count])) {
+		$count++;
+	}
+	
+	$result = eF_executeNew("show create table {$table_name}");
+	$data = $result->getAll();
+	
+	eF_executeNew(str_replace("`{$table_name}`", "`{$table_name}_{$count}`", $data[0]['Create Table']));
 
+	return "{$table_name}_{$count}";	
+}

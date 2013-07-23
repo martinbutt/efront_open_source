@@ -62,7 +62,7 @@
                                 {/if}
                                                     <table style = "width:100%" class = "sortedTable" sortBy = "0">
                                                         <tr class = "topTitle">
-                                                            <td class = "topTitle">{$smarty.const._NAME}</td>
+                                                            <td class = "topTitle">{$smarty.const._TYPENAME}</td>
                                                             <td class = "topTitle">{$smarty.const._BASICUSERTYPE}</td>
                                                             <td class = "topTitle centerAlign">{$smarty.const._ACTIVE2}</td>
                                                         {if $change_user_types}

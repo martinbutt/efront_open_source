@@ -148,36 +148,40 @@
 	        {include file = 'includes/check_status.tpl'}
 	    </div>
 		<div class = "tabbertab {if $smarty.get.tab=='phpinfo'}tabbertabdefault{/if}" title = "{$smarty.const._PHPINFO}">
-    {capture name = 't_php_info_code'}
-		<div class = "phpinfodisplay">{$T_PHPINFO}</div>
-	{/capture}
-	{eF_template_printBlock title=$smarty.const._PHPINFO data=$smarty.capture.t_php_info_code image='32x32/php.png'}
-	</div>
-
-    <div class = "tabbertab {if $smarty.get.tab=='lock_down'}tabbertabdefault{/if}">
-        <h3>{$smarty.const._LOCKDOWN}</h3>
-		{capture name = 't_lock_down_code'}
-	        {$T_LOCKDOWN_FORM.javascript}
-	        <form {$T_LOCKDOWN_FORM.attributes}>
-			    {$T_LOCKDOWN_FORM.hidden}
-		    	<table class = "formElements">
-			        {if $T_CONFIGURATION.lock_down}
-			        <tr><td class = "labelCell severeWarning">{$smarty.const._THESYSTEMISCURRENTLYLOCKED}&nbsp;</td>
-			            <td class = "elementCell">{$T_LOCKDOWN_FORM.submit_unlock.html}</td></tr>
-			        {else}
-			        <tr><td class = "labelCell">{$smarty.const._LOCKDOWNMESSAGE}:&nbsp;</td>
-			            <td class = "elementCell">{$T_LOCKDOWN_FORM.lock_message.html}</td>
-			        <tr><td class = "labelCell">{$smarty.const._LOGOUTUSERS}:&nbsp;</td>
-			            <td class = "elementCell">{$T_LOCKDOWN_FORM.logout_users.html}</td>
-			        <tr><td colspan = "2">&nbsp;</td></tr>
-			        <tr><td class = "labelCell"></td>
-			            <td class = "elementCell">{$T_LOCKDOWN_FORM.submit_lockdown.html}&nbsp;{$T_LOCKDOWN_FORM.submit_message.html}</td></tr>
-			        {/if}
-		        </table>
-	        </form>
+	    {capture name = 't_php_info_code'}
+			<div class = "phpinfodisplay">{$T_PHPINFO}</div>
 		{/capture}
-		{eF_template_printBlock title=$smarty.const._LOCKDOWN data=$smarty.capture.t_lock_down_code image='32x32/key.png'}
-    </div>
+		{eF_template_printBlock title=$smarty.const._PHPINFO data=$smarty.capture.t_php_info_code image='32x32/php.png'}
+		</div>
+
+		<div class = "tabbertab {if $smarty.get.tab=='apc'}tabbertabdefault{/if}" title = "APC">
+			<iframe src = "apc.php" width = "100%" height = "800px" frameborder="no"></iframe>
+		</div>
+		
+	    <div class = "tabbertab {if $smarty.get.tab=='lock_down'}tabbertabdefault{/if}">
+	        <h3>{$smarty.const._LOCKDOWN}</h3>
+			{capture name = 't_lock_down_code'}
+		        {$T_LOCKDOWN_FORM.javascript}
+		        <form {$T_LOCKDOWN_FORM.attributes}>
+				    {$T_LOCKDOWN_FORM.hidden}
+			    	<table class = "formElements">
+				        {if $T_CONFIGURATION.lock_down}
+				        <tr><td class = "labelCell severeWarning">{$smarty.const._THESYSTEMISCURRENTLYLOCKED}&nbsp;</td>
+				            <td class = "elementCell">{$T_LOCKDOWN_FORM.submit_unlock.html}</td></tr>
+				        {else}
+				        <tr><td class = "labelCell">{$smarty.const._LOCKDOWNMESSAGE}:&nbsp;</td>
+				            <td class = "elementCell">{$T_LOCKDOWN_FORM.lock_message.html}</td>
+				        <tr><td class = "labelCell">{$smarty.const._LOGOUTUSERS}:&nbsp;</td>
+				            <td class = "elementCell">{$T_LOCKDOWN_FORM.logout_users.html}</td>
+				        <tr><td colspan = "2">&nbsp;</td></tr>
+				        <tr><td class = "labelCell"></td>
+				            <td class = "elementCell">{$T_LOCKDOWN_FORM.submit_lockdown.html}&nbsp;{$T_LOCKDOWN_FORM.submit_message.html}</td></tr>
+				        {/if}
+			        </table>
+		        </form>
+			{/capture}
+			{eF_template_printBlock title=$smarty.const._LOCKDOWN data=$smarty.capture.t_lock_down_code image='32x32/key.png'}
+	    </div>
 
     {capture name = 't_permissions_code'}
         <table>
@@ -216,7 +220,9 @@
     		    <td class = "submitCell"><input type = "button" class = "flatButton" value = "{$smarty.const._DELETE}" onclick = "deleteViews(this)"/></td></tr>
 				{/if} {* #cpp#endif *}
 			{/if} {* #cpp#endif *}
-        </table>
+		    <tr><td class = "labelCell">Archive old data:&nbsp;</td>
+    		    <td class = "submitCell"><input type = "button" class = "flatButton" value = "{$smarty.const._ARCHIVE}" onclick = "archiveTables(this)"/></td></tr>
+		</table>
     {/capture}
     {capture name = 't_clear_cache_code'}
         <table>

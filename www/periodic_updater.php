@@ -55,10 +55,10 @@ try {
 					where session_expired = 0 and session_custom_identifier = '".$_SESSION['s_custom_identifier']."' and users_LOGIN = '".$_SESSION['s_login']."'
 					and entity = '".current($entity)."' and entity_id = '".key($entity)."'");
 			
-			$_SESSION['last_periodic_check'] = time();
-			$jsonValues['online'] = EfrontUser :: getUsersOnline($GLOBALS['configuration']['autologout_time'] * 60);
-			$messages = eF_getTableData("f_personal_messages pm, f_folders ff", "count(*)", "pm.users_LOGIN='".$_SESSION['s_login']."' and viewed='no' and f_folders_ID=ff.id and ff.name='Incoming'");
-			$jsonValues['messages'] = $messages[0]['count(*)'];
+			//$_SESSION['last_periodic_check'] = time();
+			//$jsonValues['online'] = EfrontUser :: getUsersOnline($GLOBALS['configuration']['autologout_time'] * 60);
+			//$messages = eF_getTableData("f_personal_messages pm, f_folders ff", "count(*)", "pm.users_LOGIN='".$_SESSION['s_login']."' and viewed='no' and f_folders_ID=ff.id and ff.name='Incoming'");
+			//$jsonValues['messages'] = $messages[0]['count(*)'];
 			$jsonValues['status'] = 1;
 			echo json_encode($jsonValues);
 		} else {

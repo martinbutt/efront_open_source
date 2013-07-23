@@ -2763,10 +2763,10 @@ abstract class EfrontLessonUser extends EfrontUser
 		return $userLessons;
 	}
 
-	public function getUserStatusInCourseLessons($course) {
+	public function getUserStatusInCourseLessons($course, $onlyContent = false) {
 		$lessons = array();
 		$courseLessons = $course -> getCourseLessons();		
-		$userLessons   = $this   -> getUserStatusInLessons(array_keys($courseLessons));		
+		$userLessons   = $this   -> getUserStatusInLessons(array_keys($courseLessons), $onlyContent);		
 		foreach ($courseLessons as $key => $lesson) {			
 			if (isset($userLessons[$key])) {
 				$lessons[$key] 							= $userLessons[$key];
@@ -2790,8 +2790,9 @@ abstract class EfrontLessonUser extends EfrontUser
 			$userLessons = $temp;
 		}
 
-		$activeTimes = $this->getLessonsActiveTimeForUser();
-		
+		if (!$onlyContent) {
+			$activeTimes = $this->getLessonsActiveTimeForUser();
+		}
 		foreach ($userLessons as $key => $lesson) {
 			$lesson = $this -> checkUserAccessToLessonBasedOnDuration($lesson);			
 			if ((!$this -> user['user_types_ID'] && $lesson -> lesson['user_type'] != $this -> user['user_type']) || ($this -> user['user_types_ID'] && $lesson -> lesson['user_type'] != $this -> user['user_types_ID'])) {
@@ -3958,9 +3959,10 @@ class EfrontStudent extends EfrontLessonUser
 
 		//Set the lesson as complete, if it can be.
 		$completedLesson = false;
+		$userProgress = EfrontStats :: getUsersLessonStatus($lesson, $this -> user['login']);
+		$userProgress = $userProgress[$lesson][$this -> user['login']];
+		//eF_updateTableData("users_to_lessons", array('progress' => $userProgress['overall_progress']), "users_LOGIN='".$this -> user['login']."' and lessons_ID=".$lesson);
 		if ($seen) {
-			$userProgress = EfrontStats :: getUsersLessonStatus($lesson, $this -> user['login']);
-			$userProgress = $userProgress[$lesson][$this -> user['login']];
 			if ($userProgress['lesson_passed'] && !$userProgress['completed']) {
 				$lesson = new EfrontLesson($lesson);
 				if ($lesson -> options['auto_complete']) {
@@ -3999,14 +4001,18 @@ class EfrontStudent extends EfrontLessonUser
 		$nextLesson = false;
 		if ($course) {
 			($course instanceOf EfrontCourse) OR $course = new EfrontCourse($course);
-			$courseLessons = $this -> getUserStatusInCourseLessons($course);
+			//$courseLessons = $this -> getUserStatusInCourseLessons($course);			
+			$result = eF_getTableData("users_to_lessons ul join lessons_to_courses lc on ul.lessons_ID=lc.lessons_ID", "ul.lessons_ID as id,completed", "users_LOGIN='{$this->user['login']}' AND courses_ID={$course->course['id']}");
+			$courseLessons = array();
 			if ($assumeCurrentLessonCompleted) {
-				foreach ($courseLessons as $key => $value) {
-					if ($key == $lesson->lesson['id']) {
-						$courseLessons[$key]->lesson['completed'] = true;
+				foreach ($result as $value) {
+					$courseLessons[$value['id']] = $value;
+					if ($value['id'] == $lesson->lesson['id']) {
+						$courseLessons[$value['id']]['completed'] = true;
 					}
 				}
 			}
+			
 			$eligibility = new ArrayIterator($course -> checkRules($_SESSION['s_login'], $courseLessons));
 			while ($eligibility -> valid() && ($key = $eligibility -> key()) != $lesson -> lesson['id']) {
 				$eligibility -> next();
@@ -4118,6 +4124,9 @@ class EfrontUserFactory
 				throw new EfrontUserException(_USERDOESNOTEXIST.': '.$user, EfrontUserException :: USER_NOT_EXISTS);
 			} else if ($password !== false && $password != $result[0]['password']) {
 				throw new EfrontUserException(_INVALIDPASSWORDFORUSER.': '.$user, EfrontUserException :: INVALID_PASSWORD);
+			}
+			if (strcmp($result[0]['login'], $user) !=0){
+				throw new EfrontUserException(_USERDOESNOTEXIST.': '.$user, EfrontUserException :: USER_NOT_EXISTS);
 			}
 			$user = $result[0];
 		} elseif (!is_array($user)) {

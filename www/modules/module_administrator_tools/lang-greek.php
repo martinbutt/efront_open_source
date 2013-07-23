@@ -66,4 +66,5 @@ define("_MODULE_ADMINISTRATOR_TOOLS_THISWILLPROPAGATECOMPLETIONSTATUSFROMACOURSE
 define("_MODULE_ADMINISTRATOR_TOOLS_PERFORMEDXUPDATES", "Έγιναν %x αλλαγές");
 define("_MODULE_ADMINISTRATOR_TOOLS_UPDATECOMPLETEDLESSONS", "Ενημέρωση ολοκληρωμένων μαθημάτων");
 define("_MODULE_ADMINISTRATOR_TOOLS_SETCOMPLETEDLESSONSTOTHESAMEDATE", "Επιλέξτε αυτό για να αλλάξετε μαθήματα που είναι ήδη ολοκληρωμένα, θέτοντας το σκορ και την ημερομηνία ολοκλήρωσής τους να είναι ίδια με της δέσμης.");
+define("_MODULE_ADMINISTRATOR_TOOLS_FIXSHAREDFOLDERS", "Επιδιόρθωση ασυνεπειών στους διαμοιραζόμενους φακέλους");
 ?>

@@ -735,6 +735,11 @@ if (G_VERSIONTYPE != 'community') { #cpp#ifndef COMMUNITY
 	}
 } #cpp#endif
 
+if ((!isset($currentUser -> coreAccess['personal_messages']) || $currentUser -> coreAccess['personal_messages'] != 'hidden') && EfrontUser::isOptionVisible('messages')) {
+	$messages = eF_getTableData("f_personal_messages pm, f_folders ff", "count(*)", "pm.users_LOGIN='".$_SESSION['s_login']."' and viewed='no' and f_folders_ID=ff.id and ff.name='Incoming'");
+	$smarty->assign("T_NUM_MESSAGES", $messages[0]['count(*)']);
+}
+
 $smarty -> assign("T_SIMPLE_COMPLETE_MODE", EfrontUser::isOptionVisible('simple_complete'));
 $smarty -> assign("T_SIMPLE_MODE", $GLOBALS['currentUser']->user['simple_mode']);
 

@@ -84,7 +84,7 @@
 <!--ajax:lessonsTable-->
 			<table style = "width:100%" class = "sortedTable" size = "{$T_TABLE_SIZE}" sortBy = "4" order = "desc" useAjax = "1" id = "lessonsTable" rowsPerPage = "{$smarty.const.G_DEFAULT_TABLE_SIZE}" url = "{$smarty.server.PHP_SELF}?ctg=courses&edit_course={$smarty.get.edit_course}&">
 				<tr class = "topTitle defaultRowHeight">
-					<td class = "topTitle" name = "name">{$smarty.const._NAME} </td>
+					<td class = "topTitle" name = "name">{$smarty.const._LESSONNAME} </td>
 					<td class = "topTitle noSort">{$smarty.const._DIRECTION}</td>
 					<td class = "topTitle" name = "created">{$smarty.const._CREATED}</td>
 {if ($smarty.const.G_VERSIONTYPE != 'community')} {* #cpp#ifndef COMMUNITY *}
@@ -262,7 +262,7 @@
 <!--ajax:instancesTable-->
 			<table style = "width:100%" class = "sortedTable" size = "{$T_TABLE_SIZE}"  sortBy = "3" order = "desc" id = "instancesTable" useAjax = "1" rowsPerPage = "{$smarty.const.G_DEFAULT_TABLE_SIZE}" url = "{$smarty.server.PHP_SELF}?ctg=courses&edit_course={$smarty.get.edit_course}&">
 				<tr class = "topTitle">
-					<td class = "topTitle" name = "name">{$smarty.const._NAME}</td>
+					<td class = "topTitle" name = "name">{$smarty.const._COURSENAME}</td>
 					<td class = "topTitle" name = "branch_name">{$smarty.const._BRANCH}</td>
 					<td class = "topTitle centerAlign" name = "num_students">{$smarty.const._PARTICIPATION}</td>
 					<td class = "topTitle centerAlign" name = "active">{$smarty.const._ACTIVE}</td>

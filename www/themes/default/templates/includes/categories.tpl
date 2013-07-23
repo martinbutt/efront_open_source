@@ -26,7 +26,7 @@
 <!--ajax:lessonsTable-->
 				<table style = "width:100%" class = "sortedTable" size = "{$T_LESSONS_SIZE}" sortBy = "0" useAjax = "1" id = "lessonsTable" rowsPerPage = "20" url = "administrator.php?ctg=directions&edit_direction={$smarty.get.edit_direction}&">
 					<tr class = "topTitle">
-						<td class = "topTitle" name = "name">{$smarty.const._NAME} </td>
+						<td class = "topTitle" name = "name">{$smarty.const._LESSONNAME} </td>
 						<td class = "topTitle" name = "languages_NAME">{$smarty.const._LANGUAGE}</td>
 						<td class = "topTitle centerAlign" >{$smarty.const._SELECT}</td>
 					</tr>
@@ -56,7 +56,7 @@
 <!--ajax:coursesTable-->
 				<table style = "width:100%" class = "sortedTable" size = "{$T_COURSES_SIZE}" sortBy = "0" useAjax = "1" id = "coursesTable" rowsPerPage = "20" url = "administrator.php?ctg=directions&edit_direction={$smarty.get.edit_direction}&">
 					<tr class = "topTitle">
-						<td class = "topTitle" name = "name">{$smarty.const._NAME} </td>
+						<td class = "topTitle" name = "name">{$smarty.const._COURSENAME} </td>
 						<td class = "topTitle" name = "languages_NAME">{$smarty.const._LANGUAGE}</td>
 						<td class = "topTitle centerAlign" >{$smarty.const._SELECT}</td>
 					</tr>
@@ -111,7 +111,7 @@
 			{/if}
 				<table border = "0" width = "100%"  class = "sortedTable" sortBy = "0">
 					<tr class = "topTitle">
-						<td class = "topTitle" name = "name">{$smarty.const._NAME}</td>
+						<td class = "topTitle" name = "name">{$smarty.const._DIRECTIONNAME}</td>
 						<td class = "topTitle" name = "pathString">{$smarty.const._PARENTDIRECTIONS}</td>
 						<td class = "topTitle centerAlign" name = "lessons">{$smarty.const._LESSONS}</td>
 						<td class = "topTitle centerAlign" name = "lessons">{$smarty.const._COURSES}</td>

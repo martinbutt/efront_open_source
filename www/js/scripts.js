@@ -18,7 +18,7 @@
 				
 		var modal = $('<div id="ef-modal" class="modal" style = "display:none">\
 		  <div class="modal-header">\
-		    <button type="button" class="close" data-dismiss="modal">×</button>\
+		    <button type="button" class="close" data-dismiss="modal">&times;</button>\
 		    <h3 id="ef-modal-label">'+settings.header+'</h3>\
 		  </div>\
 		  <div class="modal-body">\

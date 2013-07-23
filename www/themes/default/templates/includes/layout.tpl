@@ -81,7 +81,7 @@
     		<label for = "layout_for_theme">{$smarty.const._CHANGELAYOUTFORTHEME}:&nbsp;</label>
     		<select name = "layout_for_theme" id = "layout_for_theme" onchange = "location = '{$smarty.server.PHP_SELF}?ctg=themes&theme_layout='+this.options[this.options.selectedIndex].value">
     		{foreach name = 'themes_list' item = "theme" key = "id" from = $T_THEMES}
-    			<option value = "{$id}" {if $smarty.get.theme_layout==$id}selected{elseif !$smarty.get.theme_layout && $T_LAYOUT_THEME->themes.id==$id}selected{/if}>{$theme.name}</option>
+    			<option value = "{$id}" {if $smarty.get.theme_layout==$id}selected{elseif !$smarty.get.theme_layout && $T_LAYOUT_THEME->themes.id==$id}selected{/if}>{$theme->themes.name}</option>
     		{/foreach}
     		</select>
     	</span>

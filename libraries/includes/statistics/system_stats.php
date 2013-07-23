@@ -90,7 +90,9 @@ try {
     $smarty -> assign("T_ACTIVE_USERS", $users);
     $smarty -> assign("T_TOTAL_USER_ACCESSES", $totalUserAccesses);
     $smarty -> assign("T_TOTAL_USER_TIME", eF_convertIntervalToTime($totalUserTime));
-    $smarty -> assign("T_SPACE_USED", EfrontSystem::getSpaceUsage());
+    if ($_GET['calculate_space']) {
+    	$smarty -> assign("T_SPACE_USED", EfrontSystem::getSpaceUsage());
+    }
     $smarty -> assign("T_USER_TIMES", array('logins' => implode(",", array_keys($userTimes)), 'times' => implode(",", $userTimes)));                    //Needed only for chart
 
 /*

@@ -7,7 +7,7 @@
 */
 define("G_VERSIONTYPE_CODEBASE", "community");
 define("G_VERSIONTYPE", "community");
-define("G_BUILD", "18007");
+define("G_BUILD", "18009");
 
 //This file cannot be called directly, only included.
 if (str_replace(DIRECTORY_SEPARATOR, "/", __FILE__) == $_SERVER['SCRIPT_FILENAME']) {
@@ -191,7 +191,7 @@ if (G_VERSIONTYPE != 'community') { #cpp#ifndef COMMUNITY
 setlocale(LC_ALL, _HEADERLANGUAGETAG);		//Don't set LC_ALL, as this will set the LC_NUMERIC as well, which will automatically convert dots to commas if in greek
 
 //Define theme-related constants and setup the default theme
-setupThemes();
+$currentTheme = setupThemes();
 /**The smarty libraries -- must be below themes!*/
 require_once $path."smarty/smarty_config.php";
 
@@ -208,33 +208,12 @@ if ($languages[$setLanguage]['rtl']) {
 //$smarty -> assign("T_RTL", 1);$GLOBALS['rtl'] = true;
 
 //Instantiate current theme
-try {
-    $currentTheme = new themes(G_CURRENTTHEME);
-    $smarty -> assign("T_THEME_SETTINGS", $currentTheme);
-    if ($configuration['use_logo'] == 2 && defined('G_BRANCH_URL') && G_BRANCH_URL && is_file(G_CURRENTTHEMEPATH.'images/logo/logo.png')) {
-    	$smarty -> assign("T_LOGO", 'images/logo/logo.png');
-    } else if ($configuration['use_logo'] == 2 && is_file(G_CURRENTTHEMEPATH.'images/logo/logo.png')) {
-    	$smarty -> assign("T_LOGO", 'images/logo/logo.png');
-    } else if ($configuration['use_logo'] > 0) {		//meaning that either we have 'use site logo' (1) or 'use theme logo' (2) but that does not exist
-    	$logoFile = new EfrontFile($configuration['site_logo']); 
-    	$smarty -> assign("T_LOGO", 'themes/default/images/logo/'.$logoFile['physical_name']);
-    } else {
-    	$smarty -> assign("T_LOGO", 'images/logo.png');
-    }
-} catch (EfrontFileException $e) {
-	$smarty -> assign("T_LOGO", "images/logo.png");
-}
-try {
-    try {
-        $faviconFile  = new EfrontFile($configuration['favicon']);
-        $smarty -> assign("T_FAVICON", 'images/logo/'.$faviconFile['physical_name']);
-    } catch (Exception $e) {
-        $faviconFile  = new EfrontFile($currentTheme -> options['favicon']);
-        $smarty -> assign("T_FAVICON", 'images/'.$faviconFile['physical_name']);
-    }
-} catch (EfrontFileException $e) {
-    $smarty -> assign("T_FAVICON", "images/favicon.png");
-}
+//$currentTheme = new themes(G_CURRENTTHEME);
+
+$smarty -> assign("T_THEME_SETTINGS", $currentTheme);
+
+$smarty -> assign("T_LOGO", EfrontSystem::setLogoFile($currentTheme));
+$smarty -> assign("T_FAVICON", EfrontSystem::setFaviconFile($currentTheme));
 
 /**Initialize valid currencies
  * @todo: remove from here, move to a function or class*/
@@ -375,7 +354,7 @@ function setDefines() {
 			define("G_BRANCH_URL", $matches[1]);		
 		} else {
 			define("G_BRANCH_URL", '');
-			unset($_SESSION['s_theme']);
+			//unset($_SESSION['s_theme']);
 			unset($_SESSION['s_current_branch']);
 		}
 		
@@ -387,7 +366,6 @@ function setDefines() {
 			$_SERVER['PHP_SELF'] = G_OFFSET.G_BRANCH_URL.preg_replace('#^'.G_OFFSET.'#', '', $_SERVER['PHP_SELF']);
 		}
 		define('G_SERVERNAME', $protocol.'://'.$_SERVER["HTTP_HOST"].G_OFFSET.G_BRANCH_URL);
-		//pr(G_SERVERNAME);
 	} else { #cpp#else
 		define('G_SERVERNAME', $protocol.'://'.$_SERVER["HTTP_HOST"].G_OFFSET);
 	} #cpp#endif
@@ -480,21 +458,32 @@ function setupThemes() {
     define("G_DEFAULTTHEMEURL", "themes/default/");
 
     try {
+    	$allThemes = themes :: getAll();    	    
     	if (isset($_GET['preview_theme'])) {
     		try {
     			$currentTheme = new themes($_GET['preview_theme']);
     		} catch (Exception $e) {}
-    	} elseif (isset($_SESSION['s_theme'])) {
-    		$currentTheme = new themes($_SESSION['s_theme']);
+    	} elseif (isset($_SESSION['s_theme'])) {    	
+    		if (!empty($allThemes[$_SESSION['s_theme']])) {
+    			$currentTheme = $allThemes[$_SESSION['s_theme']];
+    		} else {
+    			$currentTheme = new themes($_SESSION['s_theme']);
+    		}
     	} else {
-    		$currentTheme = new themes($GLOBALS['configuration']['theme']);
-
-    		$allThemes = themes :: getAll();
+    		
+    		if (!empty($allThemes[$GLOBALS['configuration']['theme']])) {    			    			
+    			$currentTheme = $allThemes[$GLOBALS['configuration']['theme']];
+    		} else {
+    			$currentTheme = new themes($GLOBALS['configuration']['theme']);
+    		}   
+    		
     		$browser   = detectBrowser();
+    		
     		foreach ($allThemes as $value) {
-    			if (isset($value['options']['browsers'][$browser])) {
-    				try {
-    					$browserTheme = new themes($value['id']);
+    			
+    			if (isset($value->options['browsers'][$browser])) {    				
+    				try {    					
+    					$browserTheme = $allThemes[$value->themes['id']];
     					$currentTheme = $browserTheme;
     				} catch (Exception $e) {}
     			}
@@ -513,6 +502,7 @@ function setupThemes() {
     		}
 
     		$_SESSION['s_theme'] = $currentTheme -> {$currentTheme -> entity}['id'];
+    		    		
     	}
 
     } catch (Exception $e) {
@@ -574,6 +564,8 @@ function setupThemes() {
     }
     /** The logo path*/
     define("G_LOGOPATH", G_DEFAULTIMAGESPATH."logo/");
+    
+    return $currentTheme;
 }
 
 /**

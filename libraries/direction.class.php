@@ -1309,6 +1309,15 @@ class EfrontDirectionsTree extends EfrontTree
 		return $parentsString;
 	}
 
+	public function getPathToNode($id) {
+		$values = array();
+		foreach ($this -> getNodeAncestors($id) as $direction) {
+			$values[] = $direction['name'];
+		}
+		$parentsString = implode('&nbsp;&rarr;&nbsp;', array_reverse($values));
+		
+		return $parentsString;
+	}
 }
 
 

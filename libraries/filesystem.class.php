@@ -1526,6 +1526,7 @@ class FileSystemTree extends EfrontTree
         foreach ($it as $node => $value) {
 
             $current = str_replace("\\", "/", $node);
+            
             //Instantiate file/directory object. We are using an approach that doesn't require any database queries
             if (isset($files[$current])) {
                 try {
@@ -1538,7 +1539,7 @@ class FileSystemTree extends EfrontTree
                     $fileArray = array('id'	  => -1,                        //Set 'id' to -1, meaning this file/directory has not a database representation
                                    	   'path' => $current);
                     $nodes[$current] = new EfrontFile($fileArray);
-                } else {
+                } elseif (!$it->isDot() && $it->isDir()) {
                     $nodes[$current] = new EfrontDirectory($current);
                 }
             }

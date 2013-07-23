@@ -837,7 +837,7 @@ h) Enhmerwsh ana X meres gia shmantika gegonota sto eFront (auto prepei na to sy
 
 				$id = eF_insertTableData("event_notifications", $notification);
 
-				if ($id && $after_time) {
+				if ($id && $after_time && abs($events_type) != EfrontEvent::COURSE_CERTIFICATE_EXPIRY) {
 				    $notification['id'] = $id;
 					// add notifications for the existing users - the event notification entry must first be inserted before initializing existing users
 					EfrontNotification::initializeEventNotification($notification);
@@ -888,7 +888,8 @@ h) Enhmerwsh ana X meres gia shmantika gegonota sto eFront (auto prepei na to sy
     	} #cpp#endif
 
 		$result = eF_updateTableData("event_notifications", $notification, "id = '" . $event_id . "'");
-    	if ($result && $after_time) {
+
+    	if ($result && $after_time && abs($event_type) != EfrontEvent::COURSE_CERTIFICATE_EXPIRY) {
 			// add notifications for the existing users - the event notification entry must first be inserted before initializing existing users
 			EfrontNotification::initializeEventNotification($notification);
 		}

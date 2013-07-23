@@ -37,7 +37,7 @@ table#coursesTable td.has_course,table#instancesTable td.has_course{width:10%;te
 </style>
 
 	    <tr class = "topTitle">
-{if in_array('name', $T_DATASOURCE_COLUMNS)}		    <td class = "topTitle name" 		 	 name = "name">{$smarty.const._NAME}</td>{/if}
+{if in_array('name', $T_DATASOURCE_COLUMNS)}		    <td class = "topTitle name" 		 	 name = "name">{$smarty.const._COURSENAME}</td>{/if}
 		{if $smarty.const.G_VERSIONTYPE == 'enterprise'} {* #cpp#ifdef ENTERPRISE *}
 {if in_array('location', $T_DATASOURCE_COLUMNS)} 		<td class = "topTitle location"   		 name = "location">{$smarty.const._LOCATION}</td>{/if}
 		{/if} {* #cpp#endif *}

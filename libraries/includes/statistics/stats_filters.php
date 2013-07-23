@@ -21,7 +21,6 @@ if (G_VERSIONTYPE == 'enterprise') { #cpp#ifdef ENTERPRISE
 	$currentEmployee = $currentUser -> aspects['hcd'];
 
 	if ($_SESSION['s_type'] != 'administrator' && $_SESSION['s_current_branch']) {	//this applies to supervisors only
-		$stats_filters = array();
 		$allowedBranches	  = array($_SESSION['s_current_branch']);
 		$branchesTree = new EfrontBranchesTree();
 		$iterator	  = new EfrontNodeFilterIterator(new RecursiveIteratorIterator(new RecursiveArrayIterator($branchesTree -> getNodeChildren($_SESSION['s_current_branch'])), RecursiveIteratorIterator :: SELF_FIRST));

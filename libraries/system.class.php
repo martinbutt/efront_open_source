@@ -467,20 +467,33 @@ class EfrontSystem
 	 * @access public
 	 */
 	public static function getLanguages($reduced = false, $only_active = false) {
-		$languages = array();
-		if ($only_active) {
-			$result    = eF_getTableData("languages", "*", "active=1", "translation asc");
-		} else{
-			$result    = eF_getTableData("languages", "*", "", "translation asc");
-		}
-		foreach ($result as $value) {
-			if (is_file(G_ROOTPATH.'libraries/language/lang-'.$value['name'].'.php.inc')) {
-				$value['file_path']        = G_ROOTPATH.'libraries/language/lang-'.$value['name'].'.php.inc';
-				$languages[$value['name']] = $value;
-			} else {
-				eF_deleteTableData("languages", "name='".$value['name']."'");
+		if (function_exists('apc_fetch') && $apcLanguages = apc_fetch(G_DBNAME.':languages')) {
+			$languages = $apcLanguages;
+		} else {
+			$languages = array();
+			$result = eF_getTableData("languages", "*", "", "translation asc");
+			foreach ($result as $value) {
+				if (is_file(G_ROOTPATH.'libraries/language/lang-'.$value['name'].'.php.inc')) {
+					$value['file_path']        = G_ROOTPATH.'libraries/language/lang-'.$value['name'].'.php.inc';
+					$languages[$value['name']] = $value;
+				} else {
+					eF_deleteTableData("languages", "name='".$value['name']."'");
+				}
+			}
+				
+			if (function_exists('apc_store')) {
+				apc_store(G_DBNAME.':languages', $languages);
 			}
 		}
+
+		if ($only_active) {
+			foreach ($languages as $key=>$value) {
+				if (!$value['active']) {
+					unset($languages[$key]);
+				}
+			}
+		}
+		
 		if ($reduced) {
 			$reduced = array();
 			foreach ($languages as $key => $value) {
@@ -492,6 +505,54 @@ class EfrontSystem
 		}
 	}
 
+	public static function setFaviconFile($currentTheme) {
+		if (function_exists('apc_fetch') && $favicon = apc_fetch(G_DBNAME.':favicon')) {
+			return $favicon;
+		} else {
+			try {
+				try {
+					$faviconFile  = new EfrontFile($GLOBALS['configuration']['favicon']);
+					$favicon = 'images/logo/'.$faviconFile['physical_name'];
+				} catch (Exception $e) {
+					$faviconFile  = new EfrontFile($currentTheme -> options['favicon']);
+					$favicon = 'images/'.$faviconFile['physical_name'];
+				}
+			} catch (EfrontFileException $e) {
+				$favicon = "images/favicon.png";
+			}
+
+			if (function_exists('apc_store')) {
+				apc_store(G_DBNAME.':favicon', $favicon);
+			}
+		}
+		return $favicon;		
+	}
+	
+	public static function setLogoFile($currentTheme) {
+		if (function_exists('apc_fetch') && $logo = apc_fetch(G_DBNAME.':logo')) {
+			return $logo;
+		} else {
+			try {
+				if ($GLOBALS['configuration']['use_logo'] == 2 && defined('G_BRANCH_URL') && G_BRANCH_URL && is_file(G_CURRENTTHEMEPATH.'images/logo/logo.png')) {
+					$logo = 'images/logo/logo.png';
+				} else if ($GLOBALS['configuration']['use_logo'] == 2 && is_file(G_CURRENTTHEMEPATH.'images/logo/logo.png')) {
+					$logo = 'images/logo/logo.png';
+				} else if ($GLOBALS['configuration']['use_logo'] > 0) {		//meaning that either we have 'use site logo' (1) or 'use theme logo' (2) but that does not exist
+					$logoFile = new EfrontFile($GLOBALS['configuration']['site_logo']);
+					$logo = 'themes/default/images/logo/'.$logoFile['physical_name'];
+				} else {
+					$logo = 'images/logo.png';
+				}
+			} catch (EfrontFileException $e) {
+				$logo = "images/logo.png";
+			}
+			if (function_exists('apc_store')) {
+				apc_store(G_DBNAME.':logo', $logo);
+			}
+		}		
+		
+		return $logo;
+	}
 
 	/**
 	 * Get system admin

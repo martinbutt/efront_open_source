@@ -76,7 +76,7 @@
 	            </span>				
 			{if $T_CURRENT_USER->coreAccess.personal_messages != 'hidden' && 'messages'|eF_template_isOptionVisible}
 	            <span class="headerText dropdown">
-	                <a class="dropdown-toggle" data-toggle="dropdown" href="#">{$smarty.const._MESSAGES} <b class="caret"></b></a> <span id = "header_total_messages" class = "badge badge-info"></span>
+	                <a class="dropdown-toggle" data-toggle="dropdown" href="#">{$smarty.const._MESSAGES} <b class="caret"></b></a> {if $T_NUM_MESSAGES}<span id = "header_total_messages" class = "badge badge-info" style = "cursor:pointer" onclick = "window.location='{$smarty.server.PHP_SELF}?ctg=messages'">{$T_NUM_MESSAGES}</span>{/if}
 	                <ul class="dropdown-menu">
 	                	<li><a href="userpage.php?ctg=messages">{$smarty.const._INCOMING}</a></li>
 	                	<li><a href="userpage.php?ctg=messages&add=1">{$smarty.const._CREATE}</a></li>

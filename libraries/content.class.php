@@ -313,6 +313,9 @@ class EfrontUnit extends ArrayObject
         foreach ($result as $value) {
         	eF_updateTableData("content", array('name' => $this['name'], 'data' => $this['data'], 'ctg_type' => $this['ctg_type'], 'metadata' => $this['metadata']), "id={$value['id']}");
         }
+        
+        Cache::resetCache("content_tree:{$this['lessons_ID']}");
+        
         return true;
     }
 
@@ -371,6 +374,7 @@ class EfrontUnit extends ArrayObject
         	}
         }
         eF_deleteTableData("content", "id=".$this['id']);                                               //Delete Unit from database
+        Cache::resetCache("content_tree:{$this['lessons_ID']}");
         eF_deleteTableData("scorm_data", "content_ID=".$this['id']);                                    //Delete Unit from scorm_data
 		eF_deleteTableData("comments", "content_ID=".$this['id']); 										//Delete comments of this unit
 		eF_deleteTableData("users_to_content", "content_ID=".$this['id']); 										//Delete time data for the unit
@@ -611,12 +615,16 @@ class EfrontUnit extends ArrayObject
         }
 
         $newId  = eF_insertTableData("content", $fields);
-
+        
+        Cache::resetCache("content_tree:{$this['lessons_ID']}");
+        
         $result = eF_getTableData("content", "*", "id=".$newId);                                            //We perform an extra step/query for retrieving data, sinve this way we make sure that the array fields will be in correct order (forst id, then name, etc)
         $unit   = new EfrontUnit($result[0]);
         EfrontSearch :: insertText(htmlspecialchars($fields['name'], ENT_QUOTES), $unit['id'], "content", "title");
 
         EfrontEvent::triggerEvent(array("type" => EfrontEvent::CONTENT_CREATION, "lessons_ID" => $fields['lessons_ID'], "entity_ID" => $unit['id'], "entity_name" => $fields['name']));
+        
+        
         return $unit;
     }
 }
@@ -674,23 +682,29 @@ class EfrontContentTree extends EfrontTree
      * @access public
      */
     function __construct($lesson, $data = false) {
+    	 
+    	if ($lesson instanceof EfrontLesson) {
+    		$lessonId = $lesson -> lesson['id'];
+    	} elseif (!eF_checkParameter($lesson, 'id')) {
+    		throw new EfrontContentException(_INVALIDLESSONID.': '.$lesson, EfrontContentException :: INVALID_ID);
+    	} else {
+    		$lessonId = $lesson;
+    	}
+    	$this -> lessonId = $lessonId;                        //Set the lesson id
+    	
+    	$parameters = "content_tree:{$lessonId}";
+    	if (!$data && ($tree = unserialize(Cache::getCache($parameters))) !== false) {
+    		$this->tree = $tree;
+    	} else {
+    		$this -> data = $data;                                //Is used in reset()
+    		$this -> reset();                                     //Initialize content tree
 
-        if ($lesson instanceof EfrontLesson) {
-            $lessonId = $lesson -> lesson['id'];
-        } elseif (!eF_checkParameter($lesson, 'id')) {
-            throw new EfrontContentException(_INVALIDLESSONID.': '.$lesson, EfrontContentException :: INVALID_ID);
-        } else {
-            $lessonId = $lesson;
+    		if (!$data) {
+    			Cache::setCache($parameters, serialize($this->tree), 3600);
+    		}
         }
-
-        $this -> lessonId = $lessonId;                        //Set the lesson id
-        $this -> data = $data;                                //Is used in reset()
-
-        $this -> reset();                                     //Initialize content tree
-
         $firstUnit = $this -> getFirstNode();
         $this -> currentUnitId = $firstUnit['id'];
-
     }
 
     /**

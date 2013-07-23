@@ -342,11 +342,15 @@ function formatLogin($login, $fields = array(), $duplicate = true) {
 		return $login;
 	}
 	
-	$roles = EfrontUser :: getRoles(true);
-    $tags = array('#surname#', '#name#', '#login#', '#n#', '#type#');
 	if (function_exists('apc_fetch') && $usernames = apc_fetch(G_DBNAME.':_usernames')) {
 		$GLOBALS['_usernames'] = $usernames;
-	}
+		if (isset($GLOBALS['_usernames'][$login])) {
+			return $GLOBALS['_usernames'][$login];
+		}
+	}	
+	$roles = EfrontUser :: getRoles(true);
+	$tags = array('#surname#', '#name#', '#login#', '#n#', '#type#');
+	
 	if (isset($fields['formatted_login'])) {
 		$GLOBALS['_usernames'][$login] = $fields['formatted_login'];
 	} else if (!empty($fields)) {
@@ -1754,53 +1758,39 @@ function eF_getModuleMenu($modules, $menu_category) {
 * Used for checking for events to be executed
 */
 function eF_loadAllModules($onlyActive = true, $disregardUser = false) {
-    if ($onlyActive) {
-    	$modulesDB = eF_getTableData("modules","*","active=1");
-    } else {
-    	$modulesDB = eF_getTableData("modules","*","");
-    }
-    $modules = array();
+	if (!$disregardUser && empty($_SESSION['s_login'])) {
+		return array();
+	}	
+	
+	if (function_exists('apc_fetch') && $modules = apc_fetch(G_DBNAME.':modules')) {
+		
+	} else {
+		$modulesDB = eF_getTableData("modules","*","active=1");
+		$modules = array();
+		
+		foreach ($modulesDB as $module) {
+			$folder    = $module['position'];
+			$className = $module['className'];
+		
+			if (!(!empty($_SESSION['s_login']) && $_SESSION['s_type'] == "administrator" && $_GET['ctg'] == "control_panel" && $_GET['op'] == "modules" && $_GET['upgrade'] == $className)) {
+				if (is_file(G_MODULESPATH.$folder."/".$className.".class.php")) {					
+					if (class_exists($className)) {
+						$modules[$className] = $folder;
+					}
+				}
+			}
+		}
 
-    if (!$disregardUser) {
-    	global $currentUser;
-    	if ($currentUser) {
-    		// Get all modules enabled
-    		foreach ($modulesDB as $module) {
-    			$folder = $module['position'];
-    			$className = $module['className'];
-
-    			// If a module is to be updated then its class should not be loaded now
-    			if (!($currentUser -> getType() == "administrator" && $_GET['ctg'] == "control_panel" && $_GET['op'] == "modules" && $_GET['upgrade'] == $className)) {
-    				if(is_file(G_MODULESPATH.$folder."/".$className.".class.php")) {
-    					require_once G_MODULESPATH.$folder."/".$className.".class.php";
-
-    					if (class_exists($className)) {
-    						$modules[$className] = new $className("", $folder);
-    					} else {
-    						$message      = '"'.$className .'" '. _MODULECLASSNOTEXISTSIN . ' ' .G_MODULESPATH.$folder.'/'.$className.'.class.php';
-    						$message_type = 'failure';
-    					}
-    				} else {
-    					$message = _ERRORLOADINGMODULE;
-    					$message_type = "failure";
-    				}
-    			}
-    		}
-    	}
-    } else {
-    	foreach ($modulesDB as $module) {
-    		$folder    = $module['position'];
-    		$className = $module['className'];
-
-    		if (is_file(G_MODULESPATH.$folder."/".$className.".class.php")) {
-    			require_once G_MODULESPATH.$folder."/".$className.".class.php";
-
-    			if (class_exists($className)) {
-    				$modules[$className] = new $className("", $folder);
-    			}
-    		}
-    	}
-    }
+		if (function_exists('apc_store')) {
+			apc_store(G_DBNAME.':modules', $modules);
+		}		
+	}
+	
+	foreach ($modules as $className => $folder) {
+		require_once G_MODULESPATH.$folder."/".$className.".class.php";
+		$modules[$className] = new $className("", $folder);
+	}
+	
     return $modules;
 }
 

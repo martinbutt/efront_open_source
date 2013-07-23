@@ -64,7 +64,7 @@ class themes extends EfrontEntity
 	            throw new EfrontEntityException(_ENTITYNOTFOUND.': '.htmlspecialchars($param), EfrontEntityException :: ENTITY_NOT_EXIST);
 	        }
 	        $param = $result[0]['id'];
-        }
+        }        
         parent :: __construct($param);
 
         if (strpos($this -> {$this -> entity}['path'], 'http') === 0) {
@@ -80,11 +80,17 @@ class themes extends EfrontEntity
             }
         }
 */
-        $this -> options = unserialize($this -> {$this -> entity}['options']);
+        
+        if (unserialize($this -> {$this -> entity}['options']) !== false) {
+        	$this -> options = unserialize($this -> {$this -> entity}['options']);
+        }        
         if (!$this -> options) {
             $this -> options = array();
         }
-        $this -> layout = unserialize($this -> {$this -> entity}['layout']);
+        
+        if ((unserialize($this -> {$this -> entity}['layout'])) !== false) {
+        	$this -> layout = unserialize($this -> {$this -> entity}['layout']);
+        }
         if (!$this -> layout) {
             $this -> layout = array();
         }
@@ -186,6 +192,7 @@ class themes extends EfrontEntity
         $this -> {$this -> entity}['options'] = serialize($this -> options);
         $this -> {$this -> entity}['layout']  = serialize($this -> layout);
         parent :: persist();
+        apc_delete(G_DBNAME.':themes');
     }
 
     /**
@@ -203,6 +210,7 @@ class themes extends EfrontEntity
 		foreach($modules as $key => $module) {
 			$module -> onDeleteTheme($this -> {$this -> entity}['id']);
 		}
+		apc_delete(G_DBNAME.':themes');
     }
 
     /**
@@ -225,6 +233,7 @@ class themes extends EfrontEntity
         } else {
             eF_updateTableData($this -> entity, $fields, "id=".$this -> {$this -> entity}['id']);
         }
+        apc_delete(G_DBNAME.':themes');
     }
 
     /**
@@ -361,13 +370,15 @@ class themes extends EfrontEntity
      * @return unknown_type
      */
     public static function getAll() {
-        $themes = parent :: getAll("themes", false);
-        foreach ($themes as $key => $value) {
-	        unserialize($value['options']) ? $themes[$key]['options'] = unserialize($value['options']) : $themes[$key]['options'] = array();
-            if (strpos($value['path'], 'http') === 0) {
-	            $themes[$key]['remote'] = 1;
-	        }
-        }
+    	if (function_exists('apc_fetch') && $themes = apc_fetch(G_DBNAME.':themes')) {
+    		return $themes;
+    	} else {
+    		$themes = parent :: getAll("themes", true);
+    		
+    		if (function_exists('apc_store')) {
+    			apc_store(G_DBNAME.':themes', $themes);
+    		}    		
+    	}
 
         return $themes;
     }

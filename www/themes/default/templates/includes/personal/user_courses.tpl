@@ -31,7 +31,7 @@
 
 {capture name = 'courses_list'}
     <tr class = "topTitle">
-		<td class = "topTitle" 	name = "name" style = "width:30%">{$smarty.const._NAME}</td>
+		<td class = "topTitle" 	name = "name" style = "width:30%">{$smarty.const._COURSENAME}</td>
 {if $smarty.const.G_VERSIONTYPE == 'enterprise'} {* #cpp#ifdef ENTERPRISE *}
 		<td class = "topTitle"  name = "location" style = "width:15%">{$smarty.const._LOCATION}</td>
 {/if} {* #cpp#endif *}

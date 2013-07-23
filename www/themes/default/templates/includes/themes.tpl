@@ -138,7 +138,7 @@
 		{/if}
 		<table style="width: 100%" class="sortedTable" id = "themesTable">
 			<tr class="defaultRowHeight">
-				<td class = "topTitle">{$smarty.const._NAME}</td>
+				<td class = "topTitle">{$smarty.const._THEME}</td>
 				<td class = "topTitle">{$smarty.const._AUTHOR}</td>
 				<td class = "topTitle">{$smarty.const._VERSION}</td>
 				<td class = "topTitle centerAlign noSort">{$smarty.const._ACTIVETHEME}</td>
@@ -147,20 +147,20 @@
 			{/foreach}
 				<td class = "topTitle centerAlign">{$smarty.const._OPERATIONS}</td>
 			</tr>
-			{foreach name = 'users_list' key = 'key' item = 'theme' from = $T_THEMES}
+			{foreach name = 'themes_list' key = 'key' item = 'theme' from = $T_THEMES}
 			<tr class="{cycle name = "themes" values = "oddRowColor, evenRowColor"}">
-				<td>{$theme.name}</td>
-				<td>{$theme.author}</td>
-				<td>{$theme.version}</td>
+				<td>{$theme->themes.name}</td>
+				<td>{$theme->themes.author}</td>
+				<td>{$theme->themes.version}</td>
 				<td class = "centerAlign currentTheme">
 			{if $_change_}
-				{if $theme.id == $T_CURRENT_THEME->themes.id}
-					<img class = "ajaxHandle" src = "images/16x16/pin_green.png" alt = "{$smarty.const._ACTIVETHEME}" title = "{$smarty.const._ACTIVETHEME}" onclick = "useTheme(this, '{$theme.id}')">
+				{if $theme->themes.id == $T_CURRENT_THEME->themes.id}
+					<img class = "ajaxHandle" src = "images/16x16/pin_green.png" alt = "{$smarty.const._ACTIVETHEME}" title = "{$smarty.const._ACTIVETHEME}" onclick = "useTheme(this, '{$theme->themes.id}')">
 				{else}
-					<img class = "ajaxHandle" src = "images/16x16/pin_red.png" alt = "{$smarty.const._USETHEME}" title = "{$smarty.const._USETHEME}" onclick = "useTheme(this, '{$theme.id}')">
+					<img class = "ajaxHandle" src = "images/16x16/pin_red.png" alt = "{$smarty.const._USETHEME}" title = "{$smarty.const._USETHEME}" onclick = "useTheme(this, '{$theme->themes.id}')">
 				{/if}
 			{else}
-				{if $theme.id == $T_CURRENT_THEME->themes.id}
+				{if $theme->themes.id == $T_CURRENT_THEME->themes.id}
 					<img class = "ajaxHandle" src = "images/16x16/success.png" alt = "{$smarty.const._ACTIVETHEME}" title = "{$smarty.const._ACTIVETHEME}">
 				{/if}
 			{/if}
@@ -168,29 +168,29 @@
 			{foreach name = 'browsers_list' item = "browser" key = "key" from = $T_BROWSERS}
 				<td class = "centerAlign {$key}">
 			{if $_change_}
-				{if $theme.options.browsers[$key]}
-					<img class = "ajaxHandle browser_{$key}" src = "images/16x16/pin_green.png" alt = "{$smarty.const._ACTIVETHEMEBROWSER}" title = "{$smarty.const._ACTIVETHEMEBROWSER}" onclick = "setBrowser(this, '{$theme.id}', '{$key}')"/>
+				{if isset($theme->options.browsers) && $theme->options.browsers[$key]}				
+					<img class = "ajaxHandle browser_{$key}" src = "images/16x16/pin_green.png" alt = "{$smarty.const._ACTIVETHEMEBROWSER}" title = "{$smarty.const._ACTIVETHEMEBROWSER}" onclick = "setBrowser(this, '{$theme->themes.id}', '{$key}')"/>
 				{else}
-					<img class = "ajaxHandle browser_{$key}" src = "images/16x16/pin_red.png" alt = "{$smarty.const._USETHEMEBROWSER}" title = "{$smarty.const._USETHEMEBROWSER}" onclick = "setBrowser(this, '{$theme.id}', '{$key}')"/>
+					<img class = "ajaxHandle browser_{$key}" src = "images/16x16/pin_red.png" alt = "{$smarty.const._USETHEMEBROWSER}" title = "{$smarty.const._USETHEMEBROWSER}" onclick = "setBrowser(this, '{$theme->themes.id}', '{$key}')"/>
 				{/if}
 			{else}
-				{if $theme.options.browsers[$key]}
+				{if $theme->options.browsers[$key]}
 					<img class = "ajaxHandle" src = "images/16x16/success.png" alt = "{$smarty.const._ACTIVETHEMEBROWSER}" title = "{$smarty.const._ACTIVETHEMEBROWSER}" />
 				{/if}
 			{/if}
 				</td>
 			{/foreach}
 				<td class = "centerAlign">
-					<div style = "display:none" id = "theme_settings_{$theme.name}">{foreach key = "name" item = "setting" from = $theme.settings}{$name}:&nbsp;{$setting}<br/>{/foreach}</div>
-					<img class = "ajaxHandle" src = "images/16x16/search.png" title = "{$smarty.const._PREVIEW}" alt = "{$smarty.const._PREVIEW}" onclick = "window.open('index.php?preview_theme={$theme.id}', 'preview_theme')" />
+					<div style = "display:none" id = "theme_settings_{$theme->themes.name}">{foreach key = "name" item = "setting" from = $theme->themes.settings}{$name}:&nbsp;{$setting}<br/>{/foreach}</div>
+					<img class = "ajaxHandle" src = "images/16x16/search.png" title = "{$smarty.const._PREVIEW}" alt = "{$smarty.const._PREVIEW}" onclick = "window.open('index.php?preview_theme={$theme->themes.id}', 'preview_theme')" />
 			{if $_change_}
-				{if !$theme.remote && !$theme.options.locked}
-					<img class = "ajaxHandle" src = "images/16x16/export.png" alt = "{$smarty.const._EXPORTTHEME}" title = "{$smarty.const._EXPORTTHEME}" onclick = "exportTheme(this, '{$theme.id}')">
+				{if !$theme->themes.remote && !$theme->options.locked}
+					<img class = "ajaxHandle" src = "images/16x16/export.png" alt = "{$smarty.const._EXPORTTHEME}" title = "{$smarty.const._EXPORTTHEME}" onclick = "exportTheme(this, '{$theme->themes.id}')">
 				{/if}
-				{if $theme.name == $smarty.const.G_CURRENTTHEME}
-					<img class = "ajaxHandle" src = "images/16x16/undo.png" title = "{$smarty.const._RESETTHEME}" alt = "{$smarty.const._RESETTHEME}" onclick = "resetTheme(this, '{$theme.id}')" />
+				{if $theme->themes.name == $smarty.const.G_CURRENTTHEME}
+					<img class = "ajaxHandle" src = "images/16x16/undo.png" title = "{$smarty.const._RESETTHEME}" alt = "{$smarty.const._RESETTHEME}" onclick = "resetTheme(this, '{$theme->themes.id}')" />
 				{/if}
-				{if $theme.name != 'default' && $theme.name !=  $smarty.const.G_CURRENTTHEME}<img class = "ajaxHandle" src = "images/16x16/error_delete.png" title = "{$smarty.const._DELETE}" alt = "{$smarty.const._DELETE}" onclick = "if (confirm ('{$smarty.const._IRREVERSIBLEACTIONAREYOUSURE}')) deleteEntity(this, '{$theme.id}')" />{/if}
+				{if $theme->themes.name != 'default' && $theme->themes.name !=  $smarty.const.G_CURRENTTHEME}<img class = "ajaxHandle" src = "images/16x16/error_delete.png" title = "{$smarty.const._DELETE}" alt = "{$smarty.const._DELETE}" onclick = "if (confirm ('{$smarty.const._IRREVERSIBLEACTIONAREYOUSURE}')) deleteEntity(this, '{$theme->themes.id}')" />{/if}
 			{/if}
 				</td>
 			</tr>

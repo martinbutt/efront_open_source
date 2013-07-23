@@ -201,12 +201,22 @@ class EfrontLesson
 	private function initializeDirectory() {
 
 		if ($this -> lesson['instance_source'] && isset($this -> lesson['share_folder']) && $this -> lesson['share_folder'] != $this -> lesson['instance_source']) {
-			$this -> lesson['share_folder'] = $this -> lesson['instance_source'];
-			//$this -> persist(); We don't use persist() because the object is not fully constructed yet and it will ruin it
-			eF_updateTableData("lessons", array('share_folder' => $this -> lesson['share_folder']), "id=".$this -> lesson['id']);
+			try {			
+				$sourceFolderLessonId = $this->lesson['instance_source'];
+				while ($sourceFolderLessonId && $count++ < 1000) {
+					$sourceLesson = new EfrontLesson($sourceFolderLessonId);
+					$sourceFolderLessonId = $sourceLesson->lesson['share_folder'];
+				}
+								
+				//$this -> persist(); We don't use persist() because the object is not fully constructed yet and it will ruin it
+				eF_updateTableData("lessons", array('share_folder' => $sourceLesson->lesson['id']), "id=".$this -> lesson['id']);
+				$this -> lesson['share_folder'] = $sourceLesson->lesson['id'];
+			} catch (Exception $e) {
+				//do nothing
+			}
 		}
 
-		if ($this -> lesson['share_folder']) {
+		if (!empty($this -> lesson['share_folder'])) {
 			$this -> directory = G_LESSONSPATH.$this -> lesson['share_folder'].'/';
 		} else {
 			$this -> directory = G_LESSONSPATH.$this -> lesson['id'].'/';
@@ -239,7 +249,7 @@ class EfrontLesson
 	 * @access protected
 	 */
 	private function buildPriceString() {
-		if ($this -> validateFloat($this -> lesson['price'])) {                                        //Create the string representing the lesson price
+		if (!empty($this -> lesson['price']) && $this -> validateFloat($this -> lesson['price'])) {                                        //Create the string representing the lesson price
 			$this -> options['recurring'] ? $recurring = array($this -> options['recurring'], $this -> options['recurring_duration']) : $recurring = false;
 			$this -> lesson['price_string'] = formatPrice($this -> lesson['price'], $recurring);
 		} else {

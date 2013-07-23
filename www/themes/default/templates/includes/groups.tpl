@@ -47,7 +47,7 @@
 <!--ajax:lessonsTable-->
 		<table style = "width:100%" class = "sortedTable" size = "{$T_TABLE_SIZE}" sortBy = "2"  id = "lessonsTable" useAjax = "1" rowsPerPage = "{$smarty.const.G_DEFAULT_TABLE_SIZE}" url = "administrator.php?ctg=user_groups&edit_user_group={$smarty.get.edit_user_group}&">
 			<tr class = "topTitle">
-				<td name = "name" class = "topTitle">{$smarty.const._NAME}</td>
+				<td name = "name" class = "topTitle">{$smarty.const._LESSONNAME}</td>
 				<td name = "directions_ID" class = "topTitle">{$smarty.const._PARENTDIRECTIONS}</td>
 				{if $smarty.const.G_VERSIONTYPE != 'enterprise'} {* #cpp#ifndef ENTERPRISE *}
 				<td name = "price" class = "topTitle centerAlign">{$smarty.const._PRICE}</td>
@@ -135,7 +135,7 @@
 <!--ajax:groupsTable-->
 			<table style = "width:100%" class = "sortedTable" size = "{$T_TABLE_SIZE}" sortBy = "2" order="desc" id = "groupsTable" useAjax = "1" rowsPerPage = "{$smarty.const.G_DEFAULT_TABLE_SIZE}" url = "{$smarty.server.PHP_SELF}?ctg=user_groups&">
 				<tr class = "topTitle">
-					<td class = "topTitle" name = "name">{$smarty.const._NAME}</td>
+					<td class = "topTitle" name = "name">{$smarty.const._GROUPNAME}</td>
 					<td class = "topTitle" description = "description">{$smarty.const._DESCRIPTION}</td>
 					<td class = "topTitle centerAlign" name = "num_users">{$smarty.const._USERS}</td>
 					<td class = "topTitle centerAlign" name = "active">{$smarty.const._ACTIVE2}</td>

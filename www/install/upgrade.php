@@ -116,8 +116,11 @@ if (version_compare($dbVersion, '3.6.13') == -1) {
 if (version_compare($dbVersion, '3.6.13') == 0) {
 	try {
 		$db->Execute("alter table `users` change `last_login` `last_login` int(10) unsigned NOT NULL DEFAULT 0");
+		//$db->Execute("alter table `users_to_lessons` add `progress` float default 0");
 	} catch (Exception $e) {
-		$failed_queries[] = $e->getMessage();
+		if ($e ->getCode() != 1265) {  //Error Code: 1265. Data truncated for column
+			$failed_queries[] = $e->getMessage();
+		}
 	}
 	
 	try {
