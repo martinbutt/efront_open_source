@@ -138,9 +138,9 @@ if (!isset($_GET['checkout'])) {
 								 'collapse'	   => $GLOBALS['configuration']['collapse_catalog'],
 								 'buy_link'	   => true,
 	            				 'course_lessons' => false);
-	if (!empty($courses) || !empty($lessons)) {
+	//if (!empty($courses) || !empty($lessons)) {		//wtf
 		include("directions_tree.php");
-	}
+	//}
 	
 	
 

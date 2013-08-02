@@ -379,7 +379,7 @@ class EfrontFile extends ArrayObject
      * @since 3.5.0
      * @access public
      */
-    public function copy($destinationPath, $overwrite = true) {
+    public function copy($destinationPath, $overwrite = true, $insert_search = true) {
         $destinationPath = EfrontDirectory :: normalize($destinationPath);
         $parentDirectory = new EfrontDirectory(dirname($destinationPath));        //This way we check integrity of destination
 
@@ -401,7 +401,7 @@ class EfrontFile extends ArrayObject
                                 "access"        => $this['access'],
                                 "metadata"      => $this['metadata']);
                 $fileId	= eF_insertTableData("files", $fields);
-                if ($fileId) {
+                if ($fileId && $insert_search) {
                     $fileMetadataArray 	= unserialize($this['metadata']);
                     foreach ($fileMetadataArray as $key => $value) {
                         EfrontSearch :: insertText($value, $fileId, "files", "data");
@@ -1539,7 +1539,7 @@ class FileSystemTree extends EfrontTree
                     $fileArray = array('id'	  => -1,                        //Set 'id' to -1, meaning this file/directory has not a database representation
                                    	   'path' => $current);
                     $nodes[$current] = new EfrontFile($fileArray);
-                } elseif (!$it->isDot() && $it->isDir()) {
+                } elseif (!$it->isDot()) {
                     $nodes[$current] = new EfrontDirectory($current);
                 }
             }

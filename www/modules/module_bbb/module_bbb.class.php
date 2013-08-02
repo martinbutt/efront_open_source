@@ -199,7 +199,7 @@ class module_BBB extends EfrontModule {
 	 * I couldn't make the whole thing work with smarty, so I had to take bits and pieces.
 	 */
 	function bbb_wrap_simplexml_load_file($url) {
-		$xmlresp = simplexml_load_file($url);
+		$xmlresp = simplexml_load_file(trim($url));
 		return $xmlresp;
 	}
 
@@ -216,9 +216,9 @@ class module_BBB extends EfrontModule {
 		$securitySalt = $this -> getBBBSalt();
 
 		if ($BBB_server[strlen($BBB_server) - 1] == '/') {
-			$BBB_serverPath = $BBB_server . "bigbluebutton/api/";
+			$BBB_serverPath = $BBB_server . 'bigbluebutton/api/';
 		} else {
-			$BBB_serverPath = $BBB_server . "/bigbluebutton/api/";
+			$BBB_serverPath = $BBB_server . '/bigbluebutton/api/';
 		}
 
 		//echo "always_joining".$always_joining."meetinginfostatus".$meeting_info['status'];
@@ -227,8 +227,8 @@ class module_BBB extends EfrontModule {
 		if ($currentUser -> getRole($this -> getCurrentLesson()) == "professor" && $meeting_info['status'] == 0 && $meeting_info . mayStart) {
 
 			$conferenceNameAndID = urlencode(utf8_decode($meeting_info['name']));
-			$moderatorPassword = "M97f15B7113G";
-			$attendeePassword = "Ow2D75JE160B";
+			$moderatorPassword = 'M97f15B7113G';
+			$attendeePassword = 'Ow2D75JE160B';
 
 			$voiceBridge = 70000 + rand(0, 9999);
 			$optionString = 'meetingID=' . $conferenceNameAndID . '&name=' . $conferenceNameAndID . '&moderatorPW=' . $moderatorPassword . '&attendeePW=' . $attendeePassword . '&voiceBridge=' . $voiceBridge . '&welcome=' . urlencode(_WELCOMETO . ' %%CONFNAME%%') . '&logoutURL=' . urlencode($this->getBBBLogoutUrl());
@@ -248,10 +248,9 @@ class module_BBB extends EfrontModule {
 			//echo 'to create'.$BBBurl;
 			//echo ' create URL: '.$BBBurl;
 			$xml = $this -> bbb_wrap_simplexml_load_file($BBBurl);
-
+			
 			// Returning the join URL when all's gone well....
 			if ($xml && $xml -> returncode == 'SUCCESS') {
-
 				$fullName = urlencode(utf8_decode($currentUser -> user['name'])) . "_" . urlencode(utf8_decode($currentUser -> user['surname']));
 				$conferenceNameAndID = urlencode(utf8_decode($meeting_info['name']));
 				$voiceBridge = 70000 + rand(0, 9999);
@@ -267,7 +266,6 @@ class module_BBB extends EfrontModule {
 
 				eF_updateTableData("module_BBB", array('status' => '1'), "id=" . $meeting_info[id]);
 			} else {
-				
 				//...or the professor page if it hasn't.
 				//echo ' xml response '.$xml;
 				$BBBurl = "professorpage.php?ctg=module&op=module_bbb";

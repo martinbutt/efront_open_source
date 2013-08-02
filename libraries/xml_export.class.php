@@ -9,14 +9,32 @@ class XMLExport{
 
 	public $template = '';
 
-	function __construct($xml){
+	private $active_certificate; /* indicates the active "page" meaning the active <certificate> xml tag */
+	private $current_page = 0;
+	private $number_of_pages;
 
+	function __construct($xml){
 		$this->template = simplexml_load_string($xml);
+		$this->number_of_pages = count($this->template->certificate);
+		$this->active_certificate = $this->template->certificate[$this->current_page]; 
+	}
+
+	public function getActiveCertificate() {
+		return $this->active_certificate;
+	}
+
+	public function getNumberOfPages() {
+		return $this->number_of_pages;
+	}
+
+	public function getNextPage() {
+		$this->current_page = $this->current_page + 1;
+		$this->active_certificate = $this->template->certificate[$this->current_page];
 	}
 
 	public function getCreator(){
 
-		$creator = $this->template->certificate->creator;
+		$creator = $this->active_certificate->creator;
 
 		if($creator)
 			return $creator['name'];
@@ -26,7 +44,7 @@ class XMLExport{
 
 	public function getAuthor(){
 		
-		$author = $this->template->certificate->author;
+		$author = $this->active_certificate->author;
 
 		if($author)
 			return $author['name'];
@@ -36,7 +54,7 @@ class XMLExport{
 
 	public function getSubject($studentName){
 
-		$subject = $this->template->certificate->subject;
+		$subject = $this->active_certificate->subject;
 
 		if($subject)
 			return $subject['name'];
@@ -46,7 +64,7 @@ class XMLExport{
 
 	public function getKeywords(){
 		
-		$keywords = $this->template->certificate->keywords;
+		$keywords = $this->active_certificate->keywords;
 
 		if($keywords)
 			return $keywords['name'];
@@ -56,7 +74,7 @@ class XMLExport{
 
 	public function getOrientation(){
 		
-		$orientation = $this->template->certificate->orientation;
+		$orientation = $this->active_certificate->orientation;
 
 		if($orientation){
 
@@ -74,7 +92,7 @@ class XMLExport{
 
 	public function setBackground($pdf){
 		
-		$background = $this->template->certificate->background;
+		$background = $this->active_certificate->background;
 
 		if($background){
 
@@ -98,13 +116,13 @@ class XMLExport{
 
 	public function drawLines($pdf){
 
-		foreach($this->template->certificate->lines->line as $line)
+		foreach($this->active_certificate->lines->line as $line)
 			$this->drawLine($pdf, $line['x1'], $line['y1'], $line['x2'], $line['y2'], $line['color'], $line['thickness']);
 	}
 
 	public function showLabels($pdf){
 
-		foreach($this->template->certificate->labels->label as $label)
+		foreach($this->active_certificate->labels->label as $label)
 			
 			if($label['align']) {
 				$this->showLabelAligned($pdf, $label['text'], $label['font'], $label['weight'], $label['size'], $label['color'], $label['x'], $label['y'], $label['align']);
@@ -115,7 +133,7 @@ class XMLExport{
 
 	public function showImages($pdf){
 
-		foreach($this->template->certificate->images->image as $img){
+		foreach($this->active_certificate->images->image as $img){
 
 			$start = substr($img['file'], 0, 7);
 
@@ -137,7 +155,7 @@ class XMLExport{
 
 	public function showLogo($pdf){
 
-		$logo = $this->template->certificate->logo;
+		$logo = $this->active_certificate->logo;
 
 		if($logo){
 
@@ -172,7 +190,7 @@ class XMLExport{
 
 	public function showOrganization($pdf){
 
-		$org = $this->template->certificate->organization;
+		$org = $this->active_certificate->organization;
 
 		if($org)
 			$this->showLabel($pdf, $org['text'], $org['font'], $org['weight'], $org['size'], $org['color'], $org['x'], $org['y']);
@@ -180,7 +198,7 @@ class XMLExport{
 
 	public function showDate($pdf, $date){
 
-		$date_ = $this->template->certificate->date;
+		$date_ = $this->active_certificate->date;
 
 		if($date_)
 			$this->showLabel($pdf, $date, $date_['font'], $date_['weight'], $date_['size'], $date_['color'], $date_['x'], $date_['y']);
@@ -188,7 +206,7 @@ class XMLExport{
 	
 	public function showExpireDate($pdf, $expireDate){
 
-		$date_ = $this->template->certificate->expire;
+		$date_ = $this->active_certificate->expire;
 
 		if($date_)
 			$this->showLabel($pdf, $expireDate, $date_['font'], $date_['weight'], $date_['size'], $date_['color'], $date_['x'], $date_['y']);
@@ -196,7 +214,7 @@ class XMLExport{
 	
 	public function showCustomOne($pdf, $custom){
 
-		$custom_ = $this->template->certificate->custom1;
+		$custom_ = $this->active_certificate->custom1;
 
 		if($custom_) {
 			if($custom_['align']) {	
@@ -209,7 +227,7 @@ class XMLExport{
 	
 	public function showCustomTwo($pdf, $custom){
 
-		$custom_ = $this->template->certificate->custom2;
+		$custom_ = $this->active_certificate->custom2;
 
 		if($custom_) {
 			if($custom_['align']) {	
@@ -221,7 +239,7 @@ class XMLExport{
 	}
 	public function showCustomThree($pdf, $custom){
 
-		$custom_ = $this->template->certificate->custom3;
+		$custom_ = $this->active_certificate->custom3;
 
 		if($custom_) {
 			if($custom_['align']) {	
@@ -234,7 +252,7 @@ class XMLExport{
 	
 	public function showSerialNumber($pdf, $serial){
 
-		$serial_ = $this->template->certificate->serial;
+		$serial_ = $this->active_certificate->serial;
 
 		if($serial_)
 			$this->showLabel($pdf, $serial, $serial_['font'], $serial_['weight'], $serial_['size'], $serial_['color'],
@@ -243,7 +261,7 @@ class XMLExport{
 
 	public function showStudentName($pdf, $studentName){
 
-		$student = $this->template->certificate->student;
+		$student = $this->active_certificate->student;
 
 		if($student){
 
@@ -258,7 +276,7 @@ class XMLExport{
 
 	public function showCourseName($pdf, $courseName){
 
-		$course = $this->template->certificate->course;
+		$course = $this->active_certificate->course;
 
 		if($course){
 			
@@ -274,7 +292,7 @@ class XMLExport{
 
 	public function showGrade($pdf, $courseGrade){
 
-		$grade = $this->template->certificate->grade;
+		$grade = $this->active_certificate->grade;
 
 		if($grade)
 			$this->showLabel($pdf, $courseGrade, $grade['font'], $grade['weight'], $grade['size'], $grade['color'], $grade['x'], $grade['y']);

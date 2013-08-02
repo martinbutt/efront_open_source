@@ -64,40 +64,42 @@ if (!isset($currentUser -> coreAccess['maintenance']) || $currentUser -> coreAcc
 
     $smarty -> assign('T_LOCKDOWN_FORM', $renderer -> toArray());                     //Assign the form to the template
 
-    //User check
-    $users     = eF_getTableDataFlat("users", "login");
-    //$users_dir = eF_getDirContents(G_ROOTPATH.'upload/', '', false, false);
-    $users_dir = scandir(G_ROOTPATH.'upload/');
-    foreach ($users_dir as $key => $value) {
-        if (!is_dir(G_ROOTPATH.'upload/'.$value) || !is_dir(G_ROOTPATH.'upload/'.$value.'/message_attachments') || in_array($value, array('.', '..', '.svn'))) {
-            unset($users_dir[$key]);
-        }
+    if ($_GET['check_cleanup']) {
+    	//User check
+    	$users     = eF_getTableDataFlat("users", "login");
+    	//$users_dir = eF_getDirContents(G_ROOTPATH.'upload/', '', false, false);
+    	$users_dir = scandir(G_ROOTPATH.'upload/');
+    	foreach ($users_dir as $key => $value) {
+    		if (!is_dir(G_ROOTPATH.'upload/'.$value) || !is_dir(G_ROOTPATH.'upload/'.$value.'/message_attachments') || in_array($value, array('.', '..', '.svn'))) {
+    			unset($users_dir[$key]);
+    		}
+    	}
+    	$orphan_user_folders = array_diff($users_dir, $users['login']);
+    	$orphan_users        = array_diff($users['login'], $users_dir);
+    	$orphanUserStr = implode(", ", $orphan_users);
+    	$smarty -> assign("T_ORPHAN_USERS", mb_strlen($orphanUserStr) > 200 ? mb_substr($orphanUserStr, 0, 200).'...' : $orphanUserStr);
+    	$orphanUserFoldersStr = implode(", ", $orphan_user_folders);
+    	$smarty -> assign("T_ORPHAN_USER_FOLDERS", mb_strlen($orphanUserFoldersStr) > 200 ? mb_substr($orphanUserFoldersStr, 0, 200).'...' : $orphanUserFoldersStr);
+
+    	//Lessons check
+    	$lessons     = eF_getTableDataFlat("lessons", "id, name");
+    	$lessons     = array_combine($lessons['id'], $lessons['name']);
+    	//$lessons_dir = eF_getDirContents(G_ROOTPATH.'www/content/lessons/', '', false, false);
+    	$lessons_dir = scandir(G_LESSONSPATH);
+    	foreach ($lessons_dir as $key => $dir) {                                                    //Remove non-integer lessons from list (such as scorm_uploaded_files);
+    		if (!preg_match("/^\d+$/", $dir)) {
+    			unset($lessons_dir[$key]);
+    		}
+    	}
+    	$orphan_lesson_folders = array_diff($lessons_dir, array_keys($lessons));
+    	$orphan_lessons        = array_diff(array_keys($lessons), $lessons_dir);
+
+    	$orphanLessonStr = implode(", ", $orphan_lessons);
+    	$smarty -> assign("T_ORPHAN_LESSONS", mb_strlen($orphanLessonStr) > 200 ? mb_substr($orphanLessonStr, 0, 200).'...' : $orphanLessonStr);
+    	$orphanLessonFoldersStr = implode(", ", $orphan_lesson_folders);
+    	$smarty -> assign("T_ORPHAN_LESSON_FOLDERS", mb_strlen($orphanLessonFoldersStr) > 200 ? mb_substr($orphanLessonFoldersStr, 0, 200).'...' : $orphanLessonFoldersStr);
     }
-    $orphan_user_folders = array_diff($users_dir, $users['login']);
-    $orphan_users        = array_diff($users['login'], $users_dir);
-    $orphanUserStr = implode(", ", $orphan_users);
-    $smarty -> assign("T_ORPHAN_USERS", mb_strlen($orphanUserStr) > 200 ? mb_substr($orphanUserStr, 0, 200).'...' : $orphanUserStr);
-    $orphanUserFoldersStr = implode(", ", $orphan_user_folders);
-    $smarty -> assign("T_ORPHAN_USER_FOLDERS", mb_strlen($orphanUserFoldersStr) > 200 ? mb_substr($orphanUserFoldersStr, 0, 200).'...' : $orphanUserFoldersStr);
-
-    //Lessons check
-    $lessons     = eF_getTableDataFlat("lessons", "id, name");
-    $lessons     = array_combine($lessons['id'], $lessons['name']);
-    //$lessons_dir = eF_getDirContents(G_ROOTPATH.'www/content/lessons/', '', false, false);
-    $lessons_dir = scandir(G_LESSONSPATH);
-    foreach ($lessons_dir as $key => $dir) {                                                    //Remove non-integer lessons from list (such as scorm_uploaded_files);
-        if (!preg_match("/^\d+$/", $dir)) {
-            unset($lessons_dir[$key]);
-        }
-    }
-    $orphan_lesson_folders = array_diff($lessons_dir, array_keys($lessons));
-    $orphan_lessons        = array_diff(array_keys($lessons), $lessons_dir);
-
-    $orphanLessonStr = implode(", ", $orphan_lessons);
-    $smarty -> assign("T_ORPHAN_LESSONS", mb_strlen($orphanLessonStr) > 200 ? mb_substr($orphanLessonStr, 0, 200).'...' : $orphanLessonStr);
-    $orphanLessonFoldersStr = implode(", ", $orphan_lesson_folders);
-    $smarty -> assign("T_ORPHAN_LESSON_FOLDERS", mb_strlen($orphanLessonFoldersStr) > 200 ? mb_substr($orphanLessonFoldersStr, 0, 200).'...' : $orphanLessonFoldersStr);
-
+    
     if (isset($_GET['cleanup']) && ($_GET['cleanup'] == 'orphan_user_folders' || $_GET['cleanup'] == 'all')) {
         foreach ($orphan_user_folders as $folder) {
             try {
@@ -245,8 +247,8 @@ if (!isset($currentUser -> coreAccess['maintenance']) || $currentUser -> coreAcc
     $renderer = prepareFormRenderer($form);
     $smarty -> assign("T_CLEANUP_NOTIFICATIONS_FORM", $renderer -> toArray());
 
-    $eventsSize = eF_countTableData("events", "timestamp");
-    $smarty -> assign("T_EVENTS_SIZE", $eventsSize[0]['count']);
+    $result = eF_getTableData("events", "count(timestamp) as count");
+    $smarty -> assign("T_EVENTS_SIZE", $result[0]['count']);
     $lastEventEntry = eF_getTableData("events", "timestamp", "timestamp != 0", "timestamp", false, 1);
     $smarty -> assign("T_LAST_EVENTS_ENTRY", $lastEventEntry[0]['timestamp']);
     $form = new HTML_QuickForm("cleanup_events_form", "post", basename($_SERVER['PHP_SELF'])."?ctg=maintenance&tab=cleanup", "", null, true);

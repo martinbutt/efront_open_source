@@ -127,7 +127,7 @@ try {
             }
             //New lessons block (Admin block)
             if (!isset($currentUser -> coreAccess['lessons']) || $currentUser -> coreAccess['lessons'] != 'hidden') {
-                $lessons = eF_getTableData("users_to_lessons ul, lessons l, users u", "DISTINCT users_LOGIN,  count(lessons_ID) AS count", "ul.users_LOGIN=u.login and u.archive=0 and ul.archive=0 and l.archive=0 and ul.lessons_ID = l.id and l.course_only = 0 and ul.from_timestamp=0", "", "users_LOGIN", "100");     //Get the new lesson registrations
+                $lessons = eF_getTableData("users_to_lessons ul, lessons l, users u", "DISTINCT users_LOGIN,  count(lessons_ID) AS count", "ul.users_LOGIN=u.login and u.archive=0 and ul.archive=0 and l.archive=0 and ul.lessons_ID = l.id and l.course_only = 0 and ul.from_timestamp=0", "", "", "100");     //Get the new lesson registrations
                 $smarty  -> assign("T_NEW_LESSONS", $lessons);                                                          //Assign the list to smarty, to be displayed at the first page
 
                 $constraints = array('archive' => false, 'active' => true, 'limit' => 100);

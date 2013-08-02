@@ -163,7 +163,7 @@
 <script>
 {literal}
 
-	setInterval('autoSave()', 1000);
+	setInterval('autoSave()', 10000);
 
 {/literal}
 </script>
@@ -228,8 +228,8 @@
 
 	function submitForm(obj, item_id, question_type){
 
-		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}&item_submitted=' + item_id;
-		var parameters = "&";
+		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}';
+		var parameters = "&item_submitted=" + item_id + "&";
 		var checkbox_flag = false;
 		var checkbox_checked = false;
 
@@ -313,8 +313,10 @@
 			return false;
 		}
 
-		http_request.open('GET', url + parameters, true);
-
+		http_request.open('POST', url, true);
+		http_request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		
+		
 		http_request.onreadystatechange = function(){
 
 			if(http_request.readyState == 4){
@@ -368,7 +370,7 @@
 			}
 		}
 
-		http_request.send(null);
+		http_request.send(parameters);
 	}
 
 	function autoSave(){
@@ -393,8 +395,8 @@
 
 	function submitFormAutoSave(obj, item_id){
 
-		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}&item_submitted_autosave=' + item_id;
-		var parameters = "&";
+		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}';
+		var parameters = "&item_submitted_autosave=" + item_id + "&";
 		var checkbox_flag = false;
 		var checkbox_checked = false;
 
@@ -474,14 +476,16 @@
 			return false;
 		}
 
-		http_request.open('GET', url + parameters, true);
-		http_request.send(null);
+		http_request.open('POST', url, true);
+		http_request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		http_request.send(parameters);
+		//http_request.send(null);
 	}
 
 	function editAnswer(obj, item_id){
 
-		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}&item_to_update=' + item_id;
-		var parameters = "&";
+		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}';
+		var parameters = "&item_to_update=" + item_id + "&";
 
 		var edit_answer = document.getElementById('edit_answer_' + item_id);
 		edit_answer.style.display = 'none';
@@ -528,8 +532,9 @@
 			return false;
 		}
 
-		http_request.open('GET', url + parameters, true);
-
+		http_request.open('POST', url, true);
+		http_request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		
 		http_request.onreadystatechange = function(){
 
 			if(http_request.readyState == 4){
@@ -548,13 +553,13 @@
 			}
 		}
 
-		http_request.send(null);
+		http_request.send(parameters);
 	}
 
 	function submitEditForm(obj, item_id){
 
-		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}&item_updated=' + item_id;
-		var parameters = "&";
+		var url = '{/literal}{$T_WORKBOOK_BASEURL}{literal}';
+		var parameters = "&item_updated=" + item_id + "&";
 
 		for(i = 0; i < obj.getElementsByTagName("textarea").length; i++){
 
@@ -602,8 +607,9 @@
 			return false;
 		}
 
-		http_request.open('GET', url + parameters, true);
-
+		http_request.open('POST', url, true);
+		http_request.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+		
 		http_request.onreadystatechange = function(){
 
 			if(http_request.readyState == 4){
@@ -622,7 +628,7 @@
 			}
 		}
 
-		http_request.send(null);
+		http_request.send(parameters);
 	}
 
 {/literal}

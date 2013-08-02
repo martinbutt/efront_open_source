@@ -702,9 +702,9 @@ class module_workbook extends EfrontModule{
 			exit;
 		}
 
-		if(isset($_GET['item_submitted'])){
+		if(isset($_POST['item_submitted'])){
 
-			$itemID = $_GET['item_submitted'];
+			$itemID = $_POST['item_submitted'];
 			$questionID = $workbookItems[$itemID]['item_question'];
 			$checkAnswer = $workbookItems[$itemID]['check_answer'];
 
@@ -717,7 +717,7 @@ class module_workbook extends EfrontModule{
 				$questionType = $lessonQuestions[$questionID]['type'];
 
 			$question = QuestionFactory::factory($questionID);
-			$question->setDone($_GET['question'][$questionID]);
+			$question->setDone($_POST['question'][$questionID]);
 			$results = $question->correct();
 
 			if($questionType != 'raw_text' && $results['score'] != 1)
@@ -743,14 +743,14 @@ class module_workbook extends EfrontModule{
 			exit(0);
 		}
 
-		if(isset($_GET['item_submitted_autosave'])){
+		if(isset($_POST['item_submitted_autosave'])){
 
-			$itemID = $_GET['item_submitted_autosave'];
+			$itemID = $_POST['item_submitted_autosave'];
 			$questionID = $workbookItems[$itemID]['item_question'];
 
 			$question = QuestionFactory::factory($questionID);
 			$form = new HTML_QuickForm("questionForm", "post", "", "", null, true);
-			$form->setDefaults($_GET);
+			$form->setDefaults($_POST);
 
 			$fields = array(
 					'item_id' => $itemID,
@@ -760,30 +760,30 @@ class module_workbook extends EfrontModule{
 
 			eF_deleteTableData("module_workbook_autosave", "item_id=".$itemID." AND users_LOGIN='".$currentUser->user['login']."'");
 			eF_insertTableData("module_workbook_autosave", $fields);
-
+			
 			exit(0);
 		}
 
-		if(isset($_GET['item_to_update'])){
+		if(isset($_POST['item_to_update'])){
 
-			$itemID = $_GET['item_to_update'];
+			$itemID = $_POST['item_to_update'];
 			$questionID = $workbookItems[$itemID]['item_question'];
 
 			$question = QuestionFactory::factory($questionID);
 			$form = new HTML_QuickForm("questionForm", "post", "", "", null, true);
-			$form->setDefaults($_GET);
+			$form->setDefaults($_POST);
 
 			print $question->toHTML($form);
 			exit(0);
 		}
 
-		if(isset($_GET['item_updated'])){
+		if(isset($_POST['item_updated'])){
 
-			$itemID = $_GET['item_updated'];
+			$itemID = $_POST['item_updated'];
 			$questionID = $workbookItems[$itemID]['item_question'];
 
 			$question = QuestionFactory::factory($questionID);
-			$question->setDone($_GET['question'][$questionID]);
+			$question->setDone($_POST['question'][$questionID]);
 			$form = new HTML_QuickForm("questionForm", "post", "", "", null, true);
 
 			$answerToUpdate = eF_getTableData("module_workbook_answers", "id",

@@ -1,4 +1,4 @@
-=== Version 3.6.13.4 - build 18007 ===
+=== Version 3.6.14.1 - build 18009 ===
 - v1.0 tincan statements are now explicitly rejected, until support is implemented
 - Added throttling to autosaving for tests
 - Users created by supervisors under a branch url, are not assigned the "no specific job position" by default
@@ -15,7 +15,9 @@
 - Fixed case-insensitive matching when importing users with custom user types
 - Fixed branch courses visibility
 - Outlook module invitations is now hidden for "student" supervisors
-- Supervised groups are now invisible for branches different than their assigned ones 
+- Supervised groups are now invisible for branches different than their assigned ones
+- Fixed professor-created courses preventing lessons list from appearing
+- Performance updates 
 
 === Version 3.6.13.3 - build 18006 ===
 - Added autosaving functionality for tests

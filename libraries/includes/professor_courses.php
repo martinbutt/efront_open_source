@@ -7,6 +7,7 @@ if (str_replace(DIRECTORY_SEPARATOR, "/", __FILE__) == $_SERVER['SCRIPT_FILENAME
 
 $loadScripts[] = 'includes/courses';
 
+
 if (!EfrontUser::isOptionVisible('professor_courses') || $_SESSION['s_type'] != 'professor' || $currentUser -> coreAccess['professor_courses'] == 'hidden') {
 	eF_redirect(basename($_SERVER['PHP_SELF'])."?ctg=control_panel&message=".urlencode(_UNAUTHORIZEDACCESS)."&message_type=failure");
 } else {
@@ -89,7 +90,7 @@ if (isset($_GET['delete_course']) && eF_checkParameter($_GET['delete_course'], '
 else if (isset($_GET['ajax']) && isset($_GET['edit_course']) && $_change_) {
 	try {
 		$editCourse = new EfrontCourse($_GET['edit_course']);
-		if ($course->course['creator_LOGIN'] == $_SESSION['s_login'] || (G_VERSIONTYPE == 'enterprise' && $_SESSION['s_current_branch'] && $currentEmployee -> isSupervisor())) {
+		if ($editCourse->course['creator_LOGIN'] == $_SESSION['s_login'] || (G_VERSIONTYPE == 'enterprise' && $_SESSION['s_current_branch'] && $currentEmployee -> isSupervisor())) {
 		} else {
 			throw new Exception(_UNAUTHORIZEDACCESS); 
 		}

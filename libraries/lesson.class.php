@@ -3732,7 +3732,7 @@ class EfrontLesson
 			if (!is_dir($filesExportFolder.dirname($filePath))) {
 				mkdir($filesExportFolder.dirname($filePath), 0755, true);
 			}
-		    $file -> copy($filesExportFolder.$filePath);
+		    $file -> copy($filesExportFolder.$filePath, true, false);
 		    $metadata = $this->getSCORMAssetMetadata($file);
 		    $metadataFilename = EfrontFile :: encode($filesExportFolder.$filePath.".xml");
 		    file_put_contents($metadataFilename, $metadata);    			

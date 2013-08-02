@@ -329,7 +329,8 @@ In case of error it returns also a message entity with description of the error 
                             $insert['languages_NAME']	= $_GET['languages'];
                             $insert['name'] 			= $_GET['name'];
                             $insert['surname'] 			= $_GET['surname'];
-							$insert['active']			= 1;   // Added makriria
+                            $insert['user_types_ID'] 	= $_GET['user_types_ID'];
+                            $insert['active']			= 1;   // Added makriria
 							
 							//Added lines for setting also custom profile fields
                            	$userProfile = eF_getTableData("user_profile", "*", "active=1");
@@ -437,6 +438,9 @@ In case of error it returns also a message entity with description of the error 
 								if($_GET['language'] != ""){
 									$user -> user['languages_NAME'] = $_GET['language'];
 								}  
+								if($_GET['user_types_ID'] != "" && eF_checkParameter($_GET['user_types_ID'], 'id')){
+									$user -> user['user_types_ID'] = $_GET['user_types_ID'];
+								}
 								
 								$userProfile = eF_getTableData("user_profile", "*", "active=1");
 								foreach($userProfile as $value){

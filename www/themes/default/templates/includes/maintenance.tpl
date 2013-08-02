@@ -4,6 +4,7 @@
 
 	{capture name = 't_cleanup_code'}
 	    <table>
+	    {if $smarty.get.check_cleanup}
 	        <tr><td class = "labelCell">{$smarty.const._ORPHANUSERFOLDERSCHECK}:&nbsp;</td>
 	            <td class = "elementCell">
 	            {if $T_ORPHAN_USER_FOLDERS}
@@ -46,8 +47,9 @@
 	                <img src = "images/16x16/success.png" title = "{$smarty.const._OK}" alt = "{$smarty.const._OK}"/>
 	            {/if}
 	        </td></tr>
+		        {/if}
 	        <tr><td></td>
-	        	<td class = "submitCell"><input class = "flatButton" type = "button" value = "{$smarty.const._CHECKAGAIN}" onclick = "location = '{$smarty.server.PHP_SELF}?ctg=maintenance&tab=tasks'"></td></tr>
+	        	<td class = "submitCell"><input class = "flatButton" type = "button" value = "{$smarty.const._CHECKAGAIN}" onclick = "location = '{$smarty.server.PHP_SELF}?ctg=maintenance&tab=tasks&check_cleanup=1'"></td></tr>
 	    </table>
 	    <div id = "orphan_user_folders" style = "display:none;">
 	    {capture name = 't_orphan_user_folders_code'}

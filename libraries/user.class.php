@@ -4125,9 +4125,11 @@ class EfrontUserFactory
 			} else if ($password !== false && $password != $result[0]['password']) {
 				throw new EfrontUserException(_INVALIDPASSWORDFORUSER.': '.$user, EfrontUserException :: INVALID_PASSWORD);
 			}
+			/*
 			if (strcmp($result[0]['login'], $user) !=0){
 				throw new EfrontUserException(_USERDOESNOTEXIST.': '.$user, EfrontUserException :: USER_NOT_EXISTS);
 			}
+			*/
 			$user = $result[0];
 		} elseif (!is_array($user)) {
 			throw new EfrontUserException(_INVALIDLOGIN.': '.$user, EfrontUserException :: INVALID_PARAMETER);

@@ -14,6 +14,7 @@ try {
 	    	}
 	    }
     }
+    
     if (!isset($courses) || (!$courses && !is_array($courses))) {
 	    //$courses = EfrontCourse :: getCourses(true);
 	    $constraints = array('active' => true, 'archive' => false, 'instance' => false, 'sort' => 'name');

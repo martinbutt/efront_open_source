@@ -448,7 +448,7 @@ if (isset($_GET['excel']) && $_GET['excel'] == 'user') {
 		}
 		$row++;
 		//lesson info
-		$userLessons = $infoUser -> getUserStatusInLessons();
+		$userLessons = $infoUser -> getUserStatusInIndependentLessons();
 		if (sizeof($userLessons) > 0 && $GLOBALS['configuration']['lesson_enroll']) {
 			$workSheet -> write($row, 4, _LESSONSINFO, $headerFormat);
 			$workSheet -> mergeCells($row, 4, $row, 11);
@@ -652,6 +652,77 @@ if (isset($_GET['excel']) && $_GET['excel'] == 'user') {
 					$workSheet -> write($row, 1, $lesson -> lesson['completed'] ? _YES.', '._ON.' '.formatTimestamp($lesson -> lesson['timestamp_completed']) : _NO, $fieldCenterFormat);
 					$workSheet -> write($row, 2, formatScore($lesson -> lesson['score'])."%", $fieldCenterFormat);
 				}
+			}
+			
+			//add a separate sheet for each distinct lesson of that user
+			$subcount = 1;			
+			foreach ($infoUser -> getUserStatusInCourseLessons(new EfrontCourse($course)) as $id => $lesson) {
+				$lesson = $lesson -> lesson;				
+				$workSheet = & $workBook -> addWorksheet("Course ".($count-1)." lesson ".$subcount++);
+				$workSheet -> setInputEncoding('utf-8');
+			
+				$workSheet -> write(0, 0, $lesson['name'], $headerBigFormat);
+				$workSheet -> mergeCells(0, 0, 0, 9);
+				$workSheet -> write(1, 0, $infoUser -> user['name']." ".$infoUser -> user['surname'].' ('.$infoUser -> user['login'].')', $fieldCenterFormat);
+				$workSheet -> mergeCells(1, 0, 1, 9);
+			
+				$workSheet -> setColumn(0, 0, 20);
+				$workSheet -> setColumn(1, 1, 20);
+			
+				$row = 3;
+				if ($GLOBALS['configuration']['time_reports']) {
+					$workSheet -> write($row, 0, _ACTIVETIMEINLESSON, $headerFormat);
+				} else {
+					$workSheet -> write($row, 0, _TIMEINLESSON, $headerFormat);
+				}
+				$workSheet -> mergeCells($row, 0, $row++, 1);
+				if ($GLOBALS['configuration']['time_reports']) {
+					$workSheet -> write($row, 0, $lesson['active_time_in_lesson']['time_string'], $fieldCenterFormat);
+				} else {
+					$workSheet -> write($row, 0, $lesson['time_in_lesson']['time_string'], $fieldCenterFormat);
+				}
+				$workSheet -> mergeCells($row, 0, $row++, 1);
+			
+				$workSheet -> write($row, 0, _STATUS, $headerFormat);
+				$workSheet -> mergeCells($row, 0, $row++, 1);
+				$workSheet -> write($row, 0, _COMPLETED, $fieldCenterFormat);
+				$workSheet -> write($row++, 1, $lesson['completed'] ? _YES : _NO, $fieldCenterFormat);
+				$workSheet -> write($row, 0, _COMPLETEDON, $fieldCenterFormat);
+				$workSheet -> write($row++, 1, formatTimestamp($lesson['timestamp_completed']), $fieldCenterFormat);
+				$workSheet -> write($row, 0, _GRADE, $fieldCenterFormat);
+				$workSheet -> write($row++, 1, formatScore($lesson['score'])."%", $fieldCenterFormat);
+			
+				$workSheet -> write($row, 0, _OVERALL, $headerFormat);
+				$workSheet -> mergeCells($row, 0, $row++, 1);
+				$workSheet -> write($row, 0, formatScore($lesson['overall_progress']['percentage'])."%", $fieldCenterFormat);
+				$workSheet -> mergeCells($row, 0, $row++, 1);
+			
+				if (sizeof($doneTests[$id][$infoUser -> user['login']]) > 0 && EfrontUser::isOptionVisible('tests')) {
+					$workSheet -> write($row, 0, _TESTS, $headerFormat);
+					$workSheet -> mergeCells($row, 0, $row++, 1);
+					$avgScore = 0;
+					foreach ($doneTests[$id][$infoUser -> user['login']] as $test) {
+						$workSheet -> write($row, 0, $test['name'], $fieldCenterFormat);
+						$workSheet -> write($row++, 1, formatScore($test['active_score'])."%", $fieldCenterFormat);
+						$avgScore += $test['active_score'];
+					}
+					$workSheet -> write($row, 0, _AVERAGESCORE, $titleCenterFormat);
+					$workSheet -> write($row++, 1, formatScore($avgScore / sizeof($doneTests[$id][$infoUser -> user['login']]))."%", $titleCenterFormat);
+				}
+			
+				if (sizeof($assignedProjects[$id][$infoUser -> user['login']]) > 0 && EfrontUser::isOptionVisible('projects')) {
+					$workSheet -> write($row, 0, _PROJECTS, $headerFormat);
+					$workSheet -> mergeCells($row, 0, $row++, 1);
+					$avgScore = 0;
+					foreach ($assignedProjects[$id][$infoUser -> user['login']] as $project) {
+						$workSheet -> write($row, 0, $project['title'], $fieldCenterFormat);
+						$workSheet -> write($row++, 1, formatScore($project['grade'])."%", $fieldCenterFormat);
+						$avgScore += $project['grade'];
+					}
+					$workSheet -> write($row, 0, _AVERAGESCORE, $titleCenterFormat);
+					$workSheet -> write($row++, 1, formatScore($avgScore / sizeof($assignedProjects[$id][$infoUser -> user['login']]))."%", $titleCenterFormat);
+				}
+
 			}
 		}
 
