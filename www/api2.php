@@ -1152,6 +1152,7 @@ In case of error it returns also a message entity with description of the error 
 									echo "</price>";
 									echo "<language>".$info['language']."</language>";
 									echo "<info>";
+									echo "<completed>".$info['students'][$user->login]['completed']."</completed>";
 									foreach ($lesson_info as $key => $value) {
 										echo "<".$key.">".$value."</".$key.">";
 									}
